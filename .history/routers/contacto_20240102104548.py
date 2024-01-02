@@ -4,9 +4,6 @@ Created: 2023-12
 '''
 import os
 
-#importamos la libreria para cargar los archivos de entorno
-import dotenv
-
 
 from fastapi import APIRouter,Body
 from fastapi import Path,Query, Depends
@@ -42,9 +39,6 @@ from middleware.jwt_bearer import JWTBearer
 
 # importamos la configuracion de la base de datos
 from config.database import Session
-
-#cargamos las variables de entorno
-dotenv.load_dotenv()
 
 
 # esta variable define al router

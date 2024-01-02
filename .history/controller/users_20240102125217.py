@@ -62,7 +62,6 @@ from sqlalchemy import or_,and_
 import  datetime
 
 
-#Importamos los modeloas necesarios
 from models.user import Usuario as UsuarioModel
 from models.historico_user import HistoricoUsuario as HistoricoUsuarioModel
 from models.files_users import ArchivosUsuarios as ArchivosUsuariosModel
@@ -377,30 +376,21 @@ class userController():
         #obtenemos la fecha/hora del servidor
         ahora=datetime.datetime.now()
 
-        try:
-            # declaramos la ruta de almacenaje de archivos
-            ruta = os.getenv("FILE_USERS")
+        # declaramos la ruta de almacenaje de archivos
+        ruta="files_users"
+        ruta = DB_HOST = os.getenv("FILE_USERS")
 
-            #diccionario que contiene los tipos archivos permitidos
-            permitedExtensionFilesUsers=  os.getenv("PERMITED_EXTENSION_FILES_USERS") 
-
-
-            #tamaño de los archivos permitidos en Megabytes 
-            #este valor esta expresado en Bytes = (n/1024/1024)Mb
-            permitedSizeFilesUsers =  int(os.getenv("MAX_PERMITED_SIZE_FILES_USERS") )
-
-        except ValueError as e:
-                # ocurrio un error y devolvemos el estado
-                return( {"result":"-3","error": str(e)})
+        #diccionario que contiene los tipos archivos permitidos
+        permitedExtensionFilesUseres=  os.getenv("PERMITED_EXTENSION_FILES_USERS") 
         
+        #tamaño de los archivos permitidos en Megabytes 
+        #este valor esta expresado en Bytes = (n/1024/1024)Mb
+        permitedSizeFilesUsers =  os.getenv("MAX_PERMITED_SIZE_FILES_USERS") 
+
 
         # Guarda el archivo en el directorio "files_users"
-        try:        
-            slug = os.path.splitext(file.filename)[0]
-        except ValueError as e:
-                # ocurrio un error y devolvemos el estado
-                return( {"result":"-3","error": str(e)})
-        
+        slug = os.path.splitext(file.filename)[0]
+
         # Reemplaza los caracteres no deseados por caracteres seguros
         safeFilename = re.sub(r"[^a-zA-Z0-9_-]", "_", slug)+str(uuid.uuid4())
 
@@ -410,19 +400,14 @@ class userController():
         #devolvemos la extensión para verificr si se puede o no guardar el archivo
         fileExtension=file.filename.split('.')[-1]
 
-        #creamos el nombre final del archivo
         nombreFinal=safeFilename+"."+fileExtension
 
-
-        # determinmos el tamaño del archivo
         file_size = file.size
-
-        #validamos que np exede el tamaño maximo permitido
         if (file_size > permitedSizeFilesUsers):
             # El archivo es demasiado grande
             return ({"result":"-2","estado":f"El archivo es demasiado grande, tamaño máximo permitido {(permitedSizeFilesUsers/1024/1024)}Mb"})
 
-        if (fileExtension in permitedExtensionFilesUsers):
+        if (fileExtension in permitedExtensionFilesUseres):
             try:
                 #guardamos el archivo
                 with open(path, "wb") as f:
@@ -451,10 +436,10 @@ class userController():
                     # ocurrio un error y devolvemos el estado
                     return( {"result":"-3","error": str(e)})
         else:
-            return ({"result":"-1","estado":"archivo_no permitido","Archivos Permitidos":list(permitedExtensionFilesUsers)})
+            return ({"result":"-1","estado":"archivo_no permitido","Archivos Permitidos":list(permitedExtensionFilesUseres)})
 
 
-    # metodo para subir la foto de usuario al servidor
+   # metodo para subir la foto de usuario al servidor
     # @params creatorUserId: usuario que subio el archivo
     # @params userId: usuario al que pertenece el archivo
     # @params file: archivo que se está subiendo al archivo
@@ -462,53 +447,38 @@ class userController():
         #obtenemos la fecha/hora del servidor
         ahora=datetime.datetime.now()
 
+        # declaramos la ruta de almacenaje de archivos
+        ruta="files_users"
+        ruta = DB_HOST = os.getenv("PICS_USERS")
+
+        #diccionario que contiene los tipos archivos permitidos
+        permitedExtensionFilesUseres=  os.getenv("PERMITED_EXTENSION_PIC_USERS") 
         
-        try:
-            # declaramos la ruta de almacenaje de las fotos del usuario            
-            ruta = os.getenv("PIC_USERS")
-
-            #diccionario que contiene los tipos archivos permitidos
-            permitedExtensionPicUsers=  os.getenv("PERMITED_EXTENSION_PIC_USERS") 
-            
-            #tamaño de los archivos permitidos en Megabytes 
-            #este valor esta expresado en Bytes = (n/1024/1024)Mb
-            permitedSizePicUsers =  int(os.getenv("MAX_PERMITED_SIZE_PIC_USERS") ) 
-
-        except ValueError as e:
-                # ocurrio un error y devolvemos el estado
-                return( {"result":"-3","error": str(e)})
+        #tamaño de los archivos permitidos en Megabytes 
+        #este valor esta expresado en Bytes = (n/1024/1024)Mb
+        permitedSizeFilesUsers =  os.getenv("MAX_PERMITED_SIZE_PIC_USERS") 
 
 
         # Guarda el archivo en el directorio "files_users"
-        try:
-            slug = os.path.splitext(file.filename)[0]
-        except ValueError as e:
-                # ocurrio un error y devolvemos el estado
-                return( {"result":"-3","error": str(e)})            
+        slug = os.path.splitext(file.filename)[0]
 
         # Reemplaza los caracteres no deseados por caracteres seguros
         safeFilename = re.sub(r"[^a-zA-Z0-9_-]", "_", slug)+str(uuid.uuid4())
 
         #path = os.path.join("files_users", file.filename)
-        try:
-            path = os.path.join(ruta, f"{safeFilename}.{file.filename.split('.')[-1]}")
-        except ValueError as e:
-                # ocurrio un error y devolvemos el estado
-                return( {"result":"-3","error": str(e)})            
-
+        path = os.path.join(ruta, f"{safeFilename}.{file.filename.split('.')[-1]}")
         
         #devolvemos la extensión para verificr si se puede o no guardar el archivo
         fileExtension=file.filename.split('.')[-1]
 
-        #determinamos el tamaño del archivo
+        nombreFinal=safeFilename+"."+fileExtension
+
         file_size = file.size
-
-        #verificamos que no exceda el tamaño máximo permitido
-        if (file_size > permitedSizePicUsers):
+        if (file_size > permitedSizeFilesUsers):
             # El archivo es demasiado grande
-            return ({"result":"-2","estado":f"El archivo es demasiado grande, tamaño máximo permitido {(permitedSizePicUsers/1024/1024)}Mb"})
+            return ({"result":"-2","estado":f"El archivo es demasiado grande, tamaño máximo permitido {(permitedSizeFilesUsers/1024/1024)}Mb"})
 
-        if (fileExtension in permitedExtensionPicUsers):
+        if (fileExtension in permitedExtensionFilesUseres):
             try:
                 #guardamos el archivo
                 with open(path, "wb") as f:
@@ -517,44 +487,27 @@ class userController():
                 # Guarda la ruta del archivo en la base de datos
                 url = f"/{ruta}/{safeFilename}.{file.filename.split('.')[-1]}"
 
-                # determinamos si la foto del usuario existe 
-                nRecordPicUser=  self.db.query(FotosUsuariosModel).filter(FotosUsuariosModel.user_id==userId).count()
+                # Crea un registro en la base de datos
+                newPicUser = ArchivosUsuariosModel (
+                    user_id = userId,
+                    nombre = nombreFinal,
+                    url = url,
+                    created = ahora,
+                    updated = ahora,
+                    creator_user = creatorUserId,
+                    updater_user= creatorUserId                      
+                )
+                self.db.add(newPicUser)
+                self.db.commit()
 
-                if (nRecordPicUser>0):
-                     # existe no podemos volver a crearlo
-                     result =  self.db.query(FotosUsuariosModel).filter(FotosUsuariosModel.user_id==userId).first()
-                     picUser={
-                        "id":result.id,
-                        "user_id":result.user_id,
-                        "url":result.url,
-                        "created":result.created.strftime("%Y-%m-%d %H:%M:%S"),
-                        "updated":result.updated.strftime("%Y-%m-%d %H:%M:%S"),
-                        "creator_user":result.creator_user,
-                        "updater_user":result.updater_user 
-                     }
-                     return ({"result":"-4","estado":"Record Found", "picUser":picUser})
-                else:
-                    # no existe foto del usuario podemos crearla
-                    # Crea un registro en la base de datos
-                    newPicUser = FotosUsuariosModel (
-                        user_id = userId,
-                        url = url,
-                        created = ahora,
-                        updated = ahora,
-                        creator_user = creatorUserId,
-                        updater_user= creatorUserId                      
-                    )
-                    self.db.add(newPicUser)
-                    self.db.commit()
-
-                    #devolvemos el resultado
-                    newPicUserId=newPicUser.id
-                    return ({"result":"1","estado":"foto creada","newPicUserId":newPicUserId})
+                #devolvemos el resultado
+                newPicUserId=newPicUser.id
+                return ({"result":"1","estado":"archivo_creado","newPicUserId":newPicUserId})
             except ValueError as e:
                     # ocurrio un error y devolvemos el estado
                     return( {"result":"-3","error": str(e)})
         else:
-            return ({"result":"-1","estado":"archivo_no permitido","Archivos Permitidos":list(permitedExtensionPicUsers)})
+            return ({"result":"-1","estado":"archivo_no permitido","Archivos Permitidos":list(permitedExtensionFilesUseres)})
 
 
     # metodo para consultar un archivo por Id
@@ -601,51 +554,7 @@ class userController():
             return ({"result":"-1","estado":"Archivo no encontrado","fileId":fileId })    
 
 
-
-    # metodo para consultar una foto de usuario por Id
-    # @params fileId: id de la foto del Usuario que se desea consultar
-    def get_pic_user(self, picId):
-
-        # verificamos si existe el registro
-        nRecordPicUser= self.db.query(FotosUsuariosModel).filter(FotosUsuariosModel.id==picId).count()
-
-        main_file = os.path.abspath(__file__)
-        app_dir = os.path.dirname(main_file)+"/.."
-
-        '''
-            Estructura de la tabla
-            id	bigint(20) AI PK
-            user_id	bigint(20)
-            nombre	varchar(250)
-            url	text
-            created	datetime
-            updated	datetime
-            creator_user	bigint(20)
-            updater_user	bigint(20)        
-        '''
-        if (nRecordPicUser>0):
-            # Obtener la dirección del servidor.
-            result= self.db.query(FotosUsuariosModel).filter(FotosUsuariosModel.id==picId).first()
-
-            resultado={
-                "id":result.id,
-                "user_id":result.user_id,
-                "url":result.url,
-                "created":result.created,
-                "updated": result.updated,
-                "creator_user":result.creator_user,
-                "updater_user":result.updater_user,
-                "absolute_path":"file://"+app_dir+result.url
-            }
-            if (result):
-                return ({"result":"1","estado":"Archivo encontrado","resultado":resultado })                            
-            else:
-                return ({"result":"-1","estado":"Archivo no encontrado","picId":picId })   
-        else:
-            return ({"result":"-1","estado":"Archivo no encontrado","picId":picId })    
-        
-
-
+#
     # metodo para consultar un archivo por Id
     # @params fileId: id del archivo del Usuario que se desea consultar
     def list_files_users(self, userId, page, records):

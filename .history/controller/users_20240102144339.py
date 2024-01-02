@@ -601,51 +601,7 @@ class userController():
             return ({"result":"-1","estado":"Archivo no encontrado","fileId":fileId })    
 
 
-
-    # metodo para consultar una foto de usuario por Id
-    # @params fileId: id de la foto del Usuario que se desea consultar
-    def get_pic_user(self, picId):
-
-        # verificamos si existe el registro
-        nRecordPicUser= self.db.query(FotosUsuariosModel).filter(FotosUsuariosModel.id==picId).count()
-
-        main_file = os.path.abspath(__file__)
-        app_dir = os.path.dirname(main_file)+"/.."
-
-        '''
-            Estructura de la tabla
-            id	bigint(20) AI PK
-            user_id	bigint(20)
-            nombre	varchar(250)
-            url	text
-            created	datetime
-            updated	datetime
-            creator_user	bigint(20)
-            updater_user	bigint(20)        
-        '''
-        if (nRecordPicUser>0):
-            # Obtener la dirección del servidor.
-            result= self.db.query(FotosUsuariosModel).filter(FotosUsuariosModel.id==picId).first()
-
-            resultado={
-                "id":result.id,
-                "user_id":result.user_id,
-                "url":result.url,
-                "created":result.created,
-                "updated": result.updated,
-                "creator_user":result.creator_user,
-                "updater_user":result.updater_user,
-                "absolute_path":"file://"+app_dir+result.url
-            }
-            if (result):
-                return ({"result":"1","estado":"Archivo encontrado","resultado":resultado })                            
-            else:
-                return ({"result":"-1","estado":"Archivo no encontrado","picId":picId })   
-        else:
-            return ({"result":"-1","estado":"Archivo no encontrado","picId":picId })    
-        
-
-
+#
     # metodo para consultar un archivo por Id
     # @params fileId: id del archivo del Usuario que se desea consultar
     def list_files_users(self, userId, page, records):

@@ -604,7 +604,7 @@ class userController():
 
     # metodo para consultar una foto de usuario por Id
     # @params fileId: id de la foto del Usuario que se desea consultar
-    def get_pic_user(self, picId):
+    def get_file_user(self, picId):
 
         # verificamos si existe el registro
         nRecordPicUser= self.db.query(FotosUsuariosModel).filter(FotosUsuariosModel.id==picId).count()

@@ -887,6 +887,7 @@ def get_user_history_data_personal(id:int = Path(ge=1, le=os.getenv("MAX_ID_USER
     return JSONResponse(status_code=404,content={"message":"Usuario no encontrado"})  
 
 
+
 # Funcion para consultar los datos de un archivo de un usuario
 @user_router.get (
     '/user/get_file_user/{id}',
@@ -965,7 +966,7 @@ def get_file_user(id:int = Path(ge=1, le=os.getenv("MAX_FILES_USERS")))->dict:
 @user_router.get (
     '/user/get_pic_user/{id}',
     tags=['Usuarios'],
-dependencies=[Depends(JWTBearer())],
+#dependencies=[Depends(JWTBearer())],
     responses=
         { 
             200: {

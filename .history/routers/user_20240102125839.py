@@ -332,7 +332,7 @@ def bulk_load_users():
 # Funcion para subir archivos al profile de un usuario
 @user_router.post ('/user/{id}/upload_file_users',
 tags=['Usuarios'],
-dependencies=[Depends(JWTBearer())], 
+#dependencies=[Depends(JWTBearer())], 
 responses=
     { 
         201: {
@@ -396,6 +396,11 @@ responses=
             },                                             
     })
 async def file_upload_user(creatorUserId : int = Query (ge=1, lt=os.getenv("MAX_ID_USERS")) ,id : int = Path (ge=1, lt=os.getenv("MAX_ID_USERS")),file : UploadFile=File())->dict:
+    '''# Crear la instancia de StaticFiles.
+    main_file = os.path.abspath(__file__)
+    app_dir = os.path.dirname(main_file)+"/.."
+    static_files = StaticFiles(directory=app_dir)'''
+
     db = Session()
     result=userController(db).upload_file_user(creatorUserId,id,file)
     # evaluamos el resultado
@@ -416,7 +421,7 @@ async def file_upload_user(creatorUserId : int = Query (ge=1, lt=os.getenv("MAX_
 # Funcion para subir foto del profile de un usuario
 @user_router.post ('/user/{id}/upload_pic_user',
 tags=['Usuarios'],
-dependencies=[Depends(JWTBearer())], 
+#dependencies=[Depends(JWTBearer())], 
 responses=
     { 
         201: {
@@ -465,45 +470,16 @@ responses=
                         }
                     } 
                 }       
-            },  
-        521: {
-            "description": "Tipo de archivo no permitido",
-            "content": { 
-                "application/json":
-                    { "example":
-                        {
-                            "message":"Tipo de archivo no permitido",
-                            "estado":"System Error"
-                        }
-                    } 
-                }       
-            },                                  
-        522: {
-            "description": "El archivo es demasiado grande",
-            "content": { 
-                "application/json":
-                    { "example":
-                        {
-                            "message":"El archivo es demasiado grande",
-                            "estado":"System Error"
-                        }
-                    } 
-                }       
-            },
-        523: {
-            "description": "El usuario ya posee una foto",
-            "content": { 
-                "application/json":
-                    { "example":
-                        {
-                            "message":"El usuario ya posee una foto",
-                            "estado":"System Error"
-                        }
-                    } 
-                }       
-            },
+            },                       
+
+
     })
 async def pic_upload_user(creatorUserId : int = Query (ge=1, lt=os.getenv("MAX_ID_USERS")) ,id : int = Path (ge=1, lt=os.getenv("MAX_ID_USERS")),file : UploadFile=File())->dict:
+    '''# Crear la instancia de StaticFiles.
+    main_file = os.path.abspath(__file__)
+    app_dir = os.path.dirname(main_file)+"/.."
+    static_files = StaticFiles(directory=app_dir)'''
+
     db = Session()
     result=userController(db).upload_pic_user(creatorUserId,id,file)
     # evaluamos el resultado
@@ -516,10 +492,7 @@ async def pic_upload_user(creatorUserId : int = Query (ge=1, lt=os.getenv("MAX_I
     elif  (estado=="-1"):
         return JSONResponse (status_code=521,content={"message":"Tipo de archivo no permitido","estado":result})    
     elif  (estado=="-2"):
-        return JSONResponse (status_code=522,content={"message":"El archivo es demasiado grande","estado":result})   
-    elif  (estado=="-4"):
-        picUser=result['picUser']
-        return JSONResponse (status_code=523,content={"message":"El usuario ya posee una foto","picUser":picUser})          
+        return JSONResponse (status_code=522,content={"message":"El archivo es demasiado grande","estado":result})        
     else:
         return JSONResponse (status_code=520,content={"message":"Ocurrió un error que no pudo ser controlado","estado":result})
 
@@ -887,11 +860,12 @@ def get_user_history_data_personal(id:int = Path(ge=1, le=os.getenv("MAX_ID_USER
     return JSONResponse(status_code=404,content={"message":"Usuario no encontrado"})  
 
 
+
 # Funcion para consultar los datos de un archivo de un usuario
 @user_router.get (
     '/user/get_file_user/{id}',
     tags=['Usuarios'],
-dependencies=[Depends(JWTBearer())],
+#dependencies=[Depends(JWTBearer())],
     responses=
         { 
             200: {
@@ -960,79 +934,6 @@ def get_file_user(id:int = Path(ge=1, le=os.getenv("MAX_FILES_USERS")))->dict:
     
     return JSONResponse(status_code=404,content={"message":"Usuario no encontrado"})  
 
-
-# Funcion para consultar los datos de la foto de un usuario
-@user_router.get (
-    '/user/get_pic_user/{id}',
-    tags=['Usuarios'],
-dependencies=[Depends(JWTBearer())],
-    responses=
-        { 
-            200: {
-                    "description": "Archivo encontrado",
-                    "content": { 
-                        "application/json":
-                            { 
-                                "example":
-                                    {
-                                        "message":"Usuario encontrado",
-                                        "data": "{'id':'1','user_id':'1','nombre':'archivo.jpg','url':'/files_users/archivo.jpg','created':'1990-01-01 10:00','updated':'1990-01-01 11:00','creator_user':'1','updater_user':'1' }",
-                                    }
-                            } 
-                        
-                    } 
-                        
-                },         
-            403: {
-                "description": "Forbiden",
-                "content": { 
-                    "application/json":{ 
-                        "example":
-                            {
-                                "message":"Not authenticated"
-                            }
-                        } 
-                    }       
-                },  
-            404: {
-                "description": "Archivo no encontrado",
-                "content": { 
-                    "application/json":{ 
-                        "example":
-                            {
-                                "message":"Archivo no encontrado"
-                            }
-                        } 
-                    }       
-                },   
-            500: {
-                "description": "Su session ha expirado",
-                "content": { 
-                    "application/json":
-                        { "example":
-                            {
-                                "message":"Su session ha expirado",
-                                "estado":"Signature has expired"
-                            }
-                        } 
-                    }       
-                },                                                           
-        }    
-)
-def get_íc_user(id:int = Path(ge=1, le=os.getenv("MAX_FILES_USERS")))->dict:
-    db = Session()
-    # almacenamos el listado de usarios en un resultset
-    result = userController(db).get_pic_user(id)
-    # debemnos convertir los objetos tipo BD a Json
-    if (result):
-        if (result["result"]=="1"):
-            data=result['resultado']
-            return JSONResponse(status_code=200,content=jsonable_encoder(data))    
-        else:
-            return JSONResponse(status_code=404,content={"message":"Archivo no encontrado"})     
-    
-    
-    return JSONResponse(status_code=404,content={"message":"Usuario no encontrado"})  
 
 # Funcion para listar los archivos de un usuario del sistema, se filtra por ID de usuario
 @user_router.get ('/user/{id}/list_files_users',

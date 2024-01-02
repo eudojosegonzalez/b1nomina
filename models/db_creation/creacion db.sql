@@ -1048,6 +1048,22 @@ CREATE TABLE `FilesUsers` (
   on update cascade on delete restrict
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Tabla de archivos de los usuarios';
 
+-- fotos de usuario
+-- Usados para mostrar en el profile del usuario como referencia
+CREATE TABLE `PicUsers` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `user_id` bigint NOT NULL,
+  `url` text NOT NULL,  
+  `created` datetime NOT NULL,
+  `updated` datetime NOT NULL,
+  `creator_user` bigint(20) NOT NULL,
+  `updater_user` bigint(20) NOT NULL,
+  PRIMARY KEY (`id`),
+  unique (`user_id`),
+  constraint `FK_Usuario_FilesUsers` foreign key (`user_id`) references `Usuario`(`id`)
+  on update cascade on delete restrict
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Tabla de fotos de los usuarios';
+
 -- SociedadUsuario
 CREATE TABLE IF NOT EXISTS `SociedadUsuario` (
     `id` BIGINT AUTO_INCREMENT NOT NULL,

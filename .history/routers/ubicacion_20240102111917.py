@@ -1,13 +1,15 @@
 '''
-Rutas de Contacto de usuario
+Rutas de Ubicacion de usuario
 Created: 2023-12
 '''
+
 import os
 
 #importamos la libreria para cargar los archivos de entorno
 import dotenv
 
 
+#importamos la libreria FASTAPI
 from fastapi import APIRouter,Body
 from fastapi import Path,Query, Depends
 from fastapi.responses import JSONResponse
@@ -28,13 +30,17 @@ from utils.jwt_managr import create_token,validate_token
 
 
 # importamos el controlador 
-from controller.contact_users import contactUserController
+from controller.ubication_users import ubicationUserController
 
 
 # esto importa la tabla desde la definiciones de modelos
-from models.contacto import Contacto as ContactoModel
+from models.comunas import Comunas as ComunaModel
+from models.regiones import Regiones as RegionesModel
+from models.ubicacion import Ubicacion as UbicacionModel
+
+
 #importamos el esquema de datos para utilizarlo como referencia de datos a la hora de capturar data
-from schemas.contact_user import ContactUser as ContactUserSchema
+from schemas.ubicacion_user import UbicacionUser as UbicacionUserSchema
 
 
 #from middleware.error_handler import ErrorHandler
@@ -48,22 +54,22 @@ dotenv.load_dotenv()
 
 
 # esta variable define al router
-user_contact_router = APIRouter(prefix="/V1.0")
+user_ubicacion_router = APIRouter(prefix="/V1.0")
 
-# -------- Rutas Contacto Usuario ------------
+# -------- Rutas Ubicación Usuario  ------------
 # ruta para crear los datos de contacto de un usuario
-@user_contact_router.post ('/create_user_contact', 
-tags=["Contacto"], 
+@user_ubicacion_router.post ('/create_user_ubication', 
+tags=["Localizacion"], 
 dependencies=[Depends(JWTBearer())],
 responses=
     { 
         201: {
-            "description": "Se creo el contacto del usuario en el sistema",
+            "description": "Se creo la ubicacion del usuario en el sistema",
             "content": { 
                 "application/json":{
                     "example":
                         {
-                            "message":"Se creo el contacto del usuario en el sistema",
+                            "message":"Se creo la ubicacion del usuario en el sistema",
                             "newUserId":"1"
                         }
                     } 
@@ -93,12 +99,12 @@ responses=
                 }       
             },                
         521: {
-            "description": "Ya existen los datos de contacto de este usuario, no puede volver a crearlos",
+            "description": "Ya existen los datos de ubicación de este usuario, no puede volver a crearlos",
             "content": { 
                 "application/json":
                     { "example":
                         {
-                            "message":"Ya existen los datos de contacto de este usuario, no puede volver a crearlos",
+                            "message":"Ya existen los datos de ubicacion de este usuario, no puede volver a crearlos",
                             "estado":"Record found"
                         }
                     } 
@@ -118,37 +124,37 @@ responses=
             },                       
     }
 )
-def create_user_contact(userCreatorId:int,contactUserSchema:ContactUserSchema)->dict:
+def create_user_ubicacion(userCreatorId:int,ubicacionUserSchema:UbicacionUserSchema)->dict:
     db = Session()
-    result=contactUserController(db).create_contact_user(userCreatorId,contactUserSchema)
+    result=ubicationUserController(db).create_ubication_user(userCreatorId,ubicacionUserSchema)
     # evaluamos el resultado
     estado=result['result']
 
     if (estado=="1") :
         # se inserto el registro sin problemas
-        newContactUserId=result["newContactUserId"]
-        return JSONResponse (status_code=201,content={"message":"Se creo el contacto del usuario en el sistema","newUserId":newContactUserId})     
+        newUbicationUserId=result["newUbicationUserId"]
+        return JSONResponse (status_code=201,content={"message":"Se creo el ubicacion del usuario en el sistema","newUserId":newUbicationUserId})     
     elif (estado=="-2"):
-        return JSONResponse (status_code=521,content={"message":"Ya existen los datos de contacto de este usuario, no puede volver a crearlos","estado":result})    
+        ubicationUserId=result["ubicationUserId"]
+        return JSONResponse (status_code=521,content={"message":"Ya existen los datos de ubicación de este usuario, no puede volver a crearlos","ubicationUserId":result})    
     else:
         return JSONResponse (status_code=520,content={"message":"Ocurrió un error que no pudo ser controlado","estado":result})              
 
 
-
-# ruta para consultar los datos de contacto de un usuario por el Id
-@user_contact_router.get ('/user_contact/{id}',
-tags=["Contacto"], 
+# ruta para consultar los datos de ubicacion de un usuario por el Id
+@user_ubicacion_router.get ('/user_ubication/{id}',
+tags=["Localizacion"], 
 dependencies=[Depends(JWTBearer())],
 responses=
     { 
         201: {
-            "description": "Se consiguieron los datos de contacto del usuario",
+            "description": "Se consiguieron los datos de ubicacion del usuario",
             "content": { 
                 "application/json":{
                     "example":
                         {
-                            "message":"Se consiguieron los datos de contacto del usuario",
-                            "contactUser":"{'id': 1,'user_id': 100,'email': 'example@micorreo.com','fijo': '226656168','movil' : '939024766','created':'2023-12-01 09:00:01','updated':'2023-12-10 19:00:01','creator_user':'1','updater_user':'10'}"
+                            "message":"Se consiguieron los datos de ubicacion del usuario",
+                            "ubicacionUser":"{'id': 1,'user_id': 100,'email': 'example@micorreo.com','fijo': '226656168','movil' : '939024766','created':'2023-12-01 09:00:01','updated':'2023-12-10 19:00:01','creator_user':'1','updater_user':'10'}"
                         }
                     } 
                 }       
@@ -175,7 +181,7 @@ responses=
                         }
                     } 
                 }       
-            },    
+            },  
         500: {
             "description": "Su session ha expirado",
             "content": { 
@@ -202,19 +208,19 @@ responses=
             },                       
     }                     
 )
-def get_user_contact(id: int = Path(ge=1, le=os.getenv("MAX_ID_USERS")))->dict:
+def get_user_ubication(id: int)->dict:
     db = Session()
-    result=contactUserController(db).get_contact_user(id)
+    result=ubicationUserController(db).get_ubication_user(id)
     # evaluamos el resultado
     estado=result['result']
 
     if (estado=="1") :
-        # se consiguieron los datos de contacto del usuario
-        contactUser=result["contactUser"]
-        return JSONResponse (status_code=201,content={"message":"Se consiguieron los datos de contacto del usuario en el sistema","contactUser":contactUser})     
+        # se consiguieron los datos de ubicacion del usuario
+        ubicationUser=result["ubicationUser"]
+        return JSONResponse (status_code=201,content={"message":"Se consiguieron los datos de ubicacion del usuario en el sistema","ubicationUser":ubicationUser})     
     elif (estado=="-2"):
         # no se consiguieron los datos de contacto del cliente
-        return JSONResponse (status_code=404,content={"message":"No se consiguieron los datos de contacto del usuario","estado":result}) 
+        return JSONResponse (status_code=404,content={"message":"No se consiguieron los datos de ubicacion del usuario","estado":result}) 
     else:     
         # ocurrió un error a nivel de servidor
         return JSONResponse (status_code=520,content={"message":"Ocurrió un error que no pudo ser controlado","estado":estado}) 
@@ -222,19 +228,19 @@ def get_user_contact(id: int = Path(ge=1, le=os.getenv("MAX_ID_USERS")))->dict:
 
 
 # ruta para actualizar  los datos de contacto de un usuario por el Id
-@user_contact_router.put ('/user_contact/{id}/update', 
-tags=["Contacto"], 
+@user_ubicacion_router.put ('/user_ubication/{id}/update', 
+tags=["Localizacion"], 
 dependencies=[Depends(JWTBearer())],
 responses=
     { 
         201: {
-            "description": "Se actualizó el dato de contacto del usuario",
+            "description": "Se actualizó el dato de ubicacion del usuario",
             "content": { 
                 "application/json":{
                     "example":
                         {
-                            "message":"Se actualizó el dato de contacto del usuario",
-                            "contactUser":"{'id': 1,'user_id': 100,'email': 'example@micorreo.com','fijo': '226656168','movil' : '939024766','created':'2023-12-01 09:00:01','updated':'2023-12-10 19:00:01','creator_user':'1','updater_user':'10'}"
+                            "message":"Se actualizó el dato de ubicacion del usuario",
+                            "ubicacionUser":"{'id': 1,'user_id': 100,'email': 'example@micorreo.com','fijo': '226656168','movil' : '939024766','created':'2023-12-01 09:00:01','updated':'2023-12-10 19:00:01','creator_user':'1','updater_user':'10'}"
                         }
                     } 
                 }       
@@ -251,12 +257,12 @@ responses=
                 }       
             },   
         404: {
-            "description": "No existen los datos de contacto de este usuario",
+            "description": "No existen los datos de ubicación de este usuario",
             "content": { 
                 "application/json":
                     { "example":
                         {
-                            "message":"No existen los datos de contacto de este usuario",
+                            "message":"No existen los datos de ubicación de este usuario",
                             "estado":"No record found"
                         }
                     } 
@@ -287,20 +293,20 @@ responses=
                 }       
             },                       
     }                          
-                          )
-def update_user_contact(userUpdaterId:int,contactUserSchema:ContactUserSchema)->dict:
+)
+def update_user_ubicacion(userUpdaterId:int,ubicacionUserSchema:UbicacionUserSchema)->dict:
     db = Session()
-    result=contactUserController(db).update_contact_user(userUpdaterId,contactUserSchema)
+    result=ubicationUserController(db).update_ubication_user(userUpdaterId,ubicacionUserSchema)
     # evaluamos el resultado
     estado=result['result']
 
     if (estado=="1") :
         # se actualizó el registro sin problemas
-        contactUser=result["contactUser"]
-        return JSONResponse (status_code=201,content={"message":f"Se actualizó el contacto del usuario en el sistema","contactUser":contactUser})     
+        ubicationUser=result["ubicationUser"]
+        return JSONResponse (status_code=201,content={"message":f"Se actualizó el ubicacion del usuario en el sistema","ubicationUser":ubicationUser})     
     elif (estado=="-2"):
         # no se consiguieron los datos de contacto del cliente
-        return JSONResponse (status_code=404,content={"message":"No se consiguieron los datos de contacto del usuario","estado":result}) 
+        return JSONResponse (status_code=404,content={"message":"No se consiguieron los datos de ubicacion del usuario","estado":result}) 
     else:     
         # ocurrió un error a nivel de servidor
         return JSONResponse (status_code=520,content={"message":"Ocurrió un error que no pudo ser controlado","estado":estado})     
