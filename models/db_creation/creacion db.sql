@@ -1121,6 +1121,29 @@ CREATE TABLE IF NOT EXISTS `BancariosUser` (
 )  ENGINE=INNODB DEFAULT CHARSET=UTF8 comment 'Tabla de datos bancarios de pagos del usuario';
 
 
+-- historico de bancarios de uuario
+CREATE TABLE `HistoricoBancariosUser` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `bancario_id` bigint(20) NOT NULL,  
+  `user_id` bigint(20) DEFAULT NULL,
+  `banco_id` bigint(20) NOT NULL,
+  `numero_cuenta` varchar(100) NOT NULL,
+  `en_uso` tinyint(1) NOT NULL,
+  `terceros` tinyint(1) NOT NULL,
+  `rut_tercero` varchar(100) DEFAULT NULL,
+  `nombre_tercero` varchar(100) DEFAULT NULL,
+  `email_tercero` varchar(250) DEFAULT NULL,
+  `created` datetime NOT NULL,
+  `updated` datetime NOT NULL,
+  `creator_user` bigint(20) NOT NULL,
+  `updater_user` bigint(20) NOT NULL,
+  `fecha_registro` datetime NOT NULL,  
+  `observaciones` text NULL,    
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Tabla de historico datos bancarios de pagos del usuario';
+
+
+
 -- CargosUsuario
 CREATE TABLE IF NOT EXISTS `CargosUsuario` (
     `id` BIGINT AUTO_INCREMENT NOT NULL,
