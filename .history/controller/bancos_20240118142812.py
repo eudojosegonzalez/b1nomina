@@ -214,7 +214,7 @@ class bancosController():
                 result=consulta.all()
                 
                 # devolvemos los resultados
-                return ({"result":"1","estado":"Se encontraron registros coincidentes con los criterios de búsqueda","data":result})
+                return ({"result":"1","estado":"Se encontraron registros coincidentes con los creiterios de búesqueda","data":result})
             else:
                 # los filtros no arrojaron resultados
                  return ({"result":"-1","estado":"No record found"})            
@@ -306,7 +306,7 @@ class bancosController():
                 consulta = consulta.offset(records * (page - 1))
                 listHistoryBancos=consulta.all()
                
-                # se actualizó el registro devolvemoslos registros encontrados
+                # se actualizó el registro devolvemos el registro actualizado
                 return ({"result":"1","estado":"Se consiguieron los datos historicos del banco ","data": listHistoryBancos})
             except ValueError as e:
                 # ocurrió un error devolvemos el error

@@ -1,5 +1,5 @@
 '''
-Rutas de Bancos
+Rutas de Sociedades
 2024-01
 '''
 import os
@@ -37,12 +37,12 @@ dotenv.load_dotenv()
 
 
 # esta variable define al router
-bancos_router = APIRouter(prefix="/V1.0")
+sociedades_router = APIRouter(prefix="/V1.0")
 
 # -------- Rutas Bancos ------------
 # ruta para crear las Instituciones Bancaria
-@bancos_router.post ('/create_banco', 
-tags=["Bancos"],
+@sociedades_router.post ('/create_sociedad', 
+tags=["Sociedades"],
 #dependencies=[Depends(JWTBearer())],
 responses=
     { 
@@ -95,7 +95,7 @@ responses=
             },                       
     }                      
 )
-def create_banco(banco:bancosSchema, userCreatorId : int = Query (ge=1, le=os.getenv("MAX_ID_USERS")))->dict:
+def create_sociedad(banco:bancosSchema, userCreatorId : int = Query (ge=1, le=os.getenv("MAX_ID_USERS")))->dict:
     db = Session()
     result=bancosController(db).create_banco(banco,userCreatorId)
     # evaluamos el resultado
@@ -116,9 +116,9 @@ def create_banco(banco:bancosSchema, userCreatorId : int = Query (ge=1, le=os.ge
              
 
 # ruta para listar los bancos en el sistema
-@bancos_router.get ('/list_bancos', 
-tags=["Bancos"],
-#dependencies=[Depends(JWTBearer())],
+@sociedades_router.get ('/list_sociedad', 
+tags=["Sociedades"],
+dependencies=[Depends(JWTBearer())],
 responses=
     { 
         403: {
@@ -158,7 +158,7 @@ responses=
             },                       
     }
 )
-def list_bancos(page : int = 1, records : int = 20)->dict:
+def list_sociedad(page : int = 1, records : int = 20)->dict:
     db = Session()
     # almacenamos el listado de usarios en un resultset
     result = bancosController(db).list_bancos(page,records)
@@ -171,8 +171,8 @@ def list_bancos(page : int = 1, records : int = 20)->dict:
 
 
 # ruta para consultar una Institución Bancaria por Id
-@bancos_router.get ('/bancos/{id}', 
-tags=["Bancos"],
+@sociedades_router.get ('/sociedad/{id}', 
+tags=["Sociedades"],
 dependencies=[Depends(JWTBearer())],
 responses=
     { 
@@ -226,7 +226,7 @@ responses=
             },                                                           
     }   
 )
-def get_banco(id: int):
+def get_sociedad(id: int):
     db = Session()
     # almacenamos el listado de usarios en un resultset
     result = bancosController(db).get_banco(id)
@@ -239,13 +239,13 @@ def get_banco(id: int):
             return JSONResponse(status_code=404,content={"message":"Banco no encontrado"})     
     
     
-    return JSONResponse(status_code=404,content={"message":"Banco no encontrado"})      
+    return JSONResponse(status_code=404,content={"message":"Usuario no encontrado"})      
 
 
 
 # ruta para listar los bancos en el sistema
-@bancos_router.get ('/bancos/{id}/list_historico_banco', 
-tags=["Bancos"],
+@sociedades_router.get ('/sociedad/{id}/list_historico_sociedad', 
+tags=["Sociedades"],
 dependencies=[Depends(JWTBearer())],
 responses=
     { 
@@ -286,7 +286,7 @@ responses=
             },                       
     }
 )
-def list_history_bancos(page : int = 1, records : int = 20, id : int =Path(ge=1, lt=1000))->dict:
+def list_history_sociedad(page : int = 1, records : int = 20, id : int =Path(ge=1, lt=1000))->dict:
     db = Session()
     # almacenamos el listado de usarios en un resultset
     result = bancosController(db).list_history_bancos(page,records,id)
@@ -299,8 +299,8 @@ def list_history_bancos(page : int = 1, records : int = 20, id : int =Path(ge=1,
 
 
 # ruta para buscar un banco por nombre o codigo
-@bancos_router.get ('/search_bancos', 
-tags=["Bancos"],
+@sociedades_router.get ('/search_sociedad', 
+tags=["Sociedades"],
 dependencies=[Depends(JWTBearer())],
 responses=
     { 
@@ -354,7 +354,7 @@ responses=
             },                       
     } 
 )
-def search_banco(finding : str = Query (min_length=os.getenv("MIN_STR_SEARCH_USER"), max_length=os.getenv("MAX_STR_SEARCH_USER")), page : int = 1, records : int = 20)->dict:
+def search_sociedad(finding : str = Query (min_length=os.getenv("MIN_STR_SEARCH_USER"), max_length=os.getenv("MAX_STR_SEARCH_USER")), page : int = 1, records : int = 20)->dict:
     db = Session()
     # almacenamos el listado de usarios en un resultset
     result = bancosController(db).search_banco(finding,page,records)
@@ -372,8 +372,8 @@ def search_banco(finding : str = Query (min_length=os.getenv("MIN_STR_SEARCH_USE
 
 
 # ruta para actualizar una institución Bancaria por Id
-@bancos_router.put ('/bancos/{id}/update', 
-tags=["Bancos"],
+@sociedades_router.put ('/sociedad/{id}/update', 
+tags=["Sociedades"],
 dependencies=[Depends(JWTBearer())],
 responses=
     { 
@@ -414,7 +414,7 @@ responses=
             },                       
     }
 )
-def update_banco(banco:bancosSchema, user_updater: int = Query(ge=1, le=os.getenv('MAX_ID_USERS')), id : int = Path(ge=1,le=1000))->dict:
+def update_sociedad(banco:bancosSchema, user_updater: int = Query(ge=1, le=os.getenv('MAX_ID_USERS')), id : int = Path(ge=1,le=1000))->dict:
     db = Session()
     # buscamos el registro
     result = bancosController(db).update_banco( banco, user_updater, id) 

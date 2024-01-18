@@ -1,5 +1,5 @@
 '''
-Rutas de Bancos
+Rutas de Sociedades
 2024-01
 '''
 import os
@@ -22,11 +22,10 @@ from fastapi.encoders import jsonable_encoder
 from utils.jwt_managr import create_token,validate_token
 
 #importamos el banco
-from schemas.bancos import Bancos as bancosSchema
-
+from schemas.sociedades import Sociedades as SocidadeSchema
 
 # importamos el controlador 
-from controller.bancos import bancosController
+from controller.sociedades import sociedadesController
 
 
 #from middleware.error_handler import ErrorHandler
@@ -37,13 +36,13 @@ dotenv.load_dotenv()
 
 
 # esta variable define al router
-bancos_router = APIRouter(prefix="/V1.0")
+sociedades_router = APIRouter(prefix="/V1.0")
 
 # -------- Rutas Bancos ------------
-# ruta para crear las Instituciones Bancaria
-@bancos_router.post ('/create_banco', 
-tags=["Bancos"],
-#dependencies=[Depends(JWTBearer())],
+# ruta para crear las Sociedades
+@sociedades_router.post ('/create_sociedad', 
+tags=["Sociedades"],
+##dependencies=[Depends(JWTBearer())],
 responses=
     { 
         201: {
@@ -95,30 +94,30 @@ responses=
             },                       
     }                      
 )
-def create_banco(banco:bancosSchema, userCreatorId : int = Query (ge=1, le=os.getenv("MAX_ID_USERS")))->dict:
+def create_sociedad(sociedad:SocidadeSchema, userCreatorId : int = Query (ge=1, le=os.getenv("MAX_ID_USERS")))->dict:
     db = Session()
-    result=bancosController(db).create_banco(banco,userCreatorId)
+    result=sociedadesController(db).create_sociedad(sociedad,userCreatorId)
     # evaluamos el resultado
     estado=result['result']
 
     if (estado=="1") :
         # se inserto el registro sin problemas
-        newBanco=result['data']
-        return JSONResponse (status_code=201,content={"message":"Se creo un Banco en el sistema","Banco":jsonable_encoder(newBanco)})     
+        newSociedad=result['data']
+        return JSONResponse (status_code=201,content={"message":"Se creo una sociedad en el sistema","Sociedad":jsonable_encoder(newSociedad)})     
     elif  (estado=="-1"):
         # el username ya existe no puede volver a insertarlo
-        return JSONResponse (status_code=521,content={"message":"existe un banco con este nombre, no puede volver a crearlo","Banco":jsonable_encoder(result['data'])})     
+        return JSONResponse (status_code=521,content={"message":"existe una sociedad con este nombre, no puede volver a crearla","Sociedad":jsonable_encoder(result['data'])})     
     elif (estado=="-2"):
-        return JSONResponse (status_code=521,content={"message":"existe un banco con este codigo, no puede volver a crearlo","Banco":jsonable_encoder(result['data'])})     
+        return JSONResponse (status_code=521,content={"message":"existe una sociedad con este rut, no puede volver a crearla","Sociedad":jsonable_encoder(result['data'])})     
 
     else:
         return JSONResponse (status_code=520,content={"message":"Ocurrió un error que no pudo ser controlado","estado":result})    
              
 
-# ruta para listar los bancos en el sistema
-@bancos_router.get ('/list_bancos', 
-tags=["Bancos"],
-#dependencies=[Depends(JWTBearer())],
+# ruta para listar las sociedades en el sistema
+@sociedades_router.get ('/list_sociedad', 
+tags=["Sociedades"],
+##dependencies=[Depends(JWTBearer())],
 responses=
     { 
         403: {
@@ -158,10 +157,10 @@ responses=
             },                       
     }
 )
-def list_bancos(page : int = 1, records : int = 20)->dict:
+def list_sociedad(page : int = 1, records : int = 20)->dict:
     db = Session()
     # almacenamos el listado de usarios en un resultset
-    result = bancosController(db).list_bancos(page,records)
+    result = sociedadesController(db).list_sociedades(page,records)
 
     # debemnos convertir los objetos tipo BD a Json
     if (result):
@@ -170,10 +169,10 @@ def list_bancos(page : int = 1, records : int = 20)->dict:
         return JSONResponse(status_code=404,content={"message":"No hay registros que mostrar"}) 
 
 
-# ruta para consultar una Institución Bancaria por Id
-@bancos_router.get ('/bancos/{id}', 
-tags=["Bancos"],
-dependencies=[Depends(JWTBearer())],
+# ruta para consultar una sociedad por Id
+@sociedades_router.get ('/sociedad/{id}', 
+tags=["Sociedades"],
+#dependencies=[Depends(JWTBearer())],
 responses=
     { 
         200: {
@@ -226,27 +225,27 @@ responses=
             },                                                           
     }   
 )
-def get_banco(id: int):
+def get_sociedad(id: int):
     db = Session()
     # almacenamos el listado de usarios en un resultset
-    result = bancosController(db).get_banco(id)
+    result = sociedadesController(db).get_sociedad(id)
     # debemnos convertir los objetos tipo BD a Json
     if (result):
         if (result["result"]=="1"):
             data=result['data']
             return JSONResponse(status_code=200,content={"Banco":jsonable_encoder(data)})    
         else:
-            return JSONResponse(status_code=404,content={"message":"Banco no encontrado"})     
+            return JSONResponse(status_code=404,content={"message":"Sociedad no encontrada"})     
     
     
-    return JSONResponse(status_code=404,content={"message":"Banco no encontrado"})      
+    return JSONResponse(status_code=404,content={"message":"Sociedad no encontrada"})      
 
 
 
-# ruta para listar los bancos en el sistema
-@bancos_router.get ('/bancos/{id}/list_historico_banco', 
-tags=["Bancos"],
-dependencies=[Depends(JWTBearer())],
+# ruta para listar los datos historicos de la sociedades por ID
+@sociedades_router.get ('/sociedad/{id}/list_historico_sociedad', 
+tags=["Sociedades"],
+#dependencies=[Depends(JWTBearer())],
 responses=
     { 
         403: {
@@ -286,10 +285,10 @@ responses=
             },                       
     }
 )
-def list_history_bancos(page : int = 1, records : int = 20, id : int =Path(ge=1, lt=1000))->dict:
+def list_history_sociedad(page : int = 1, records : int = 20, id : int =Path(ge=1, lt=1000))->dict:
     db = Session()
     # almacenamos el listado de usarios en un resultset
-    result = bancosController(db).list_history_bancos(page,records,id)
+    result = sociedadesController(db).list_history_sociedades(page,records,id)
 
     # debemnos convertir los objetos tipo BD a Json
     if (result):
@@ -298,10 +297,10 @@ def list_history_bancos(page : int = 1, records : int = 20, id : int =Path(ge=1,
         return JSONResponse(status_code=404,content={"message":"No hay registros que mostrar"}) 
 
 
-# ruta para buscar un banco por nombre o codigo
-@bancos_router.get ('/search_bancos', 
-tags=["Bancos"],
-dependencies=[Depends(JWTBearer())],
+# ruta para buscar una sociedad por nombre o rut
+@sociedades_router.get ('/search_sociedad', 
+tags=["Sociedades"],
+#dependencies=[Depends(JWTBearer())],
 responses=
     { 
         200: {
@@ -311,8 +310,8 @@ responses=
                         { 
                             "example":
                                 {
-                                    "message":"Bancos encontrado",
-                                    "data": "{'codigo': '001',''nombre':'BANCO CHILE Y EDWARDS','nomina': 1,'created':'2023-01-01','updated':'2023-01-01','creator_user':1,'updater_user':1 }",
+                                    "message":"Sociedad encontrada",
+                                    "data": "{'rut': 'RutDemo','nombre':'Demo','direccion': 'Direccion Demo','region_id': 1,'comuna_id': 1,'ciudad':'Demo ciudad','icono':'','created':'1990-01-01 10:52','updatedted':'1990-01-01 10:52','user_creator':1,'user_updater':1}",
                                 }
                         } 
                     
@@ -354,10 +353,10 @@ responses=
             },                       
     } 
 )
-def search_banco(finding : str = Query (min_length=os.getenv("MIN_STR_SEARCH_USER"), max_length=os.getenv("MAX_STR_SEARCH_USER")), page : int = 1, records : int = 20)->dict:
+def search_sociedad(finding : str = Query (min_length=os.getenv("MIN_STR_SEARCH_USER"), max_length=os.getenv("MAX_STR_SEARCH_USER")), page : int = 1, records : int = 20)->dict:
     db = Session()
     # almacenamos el listado de usarios en un resultset
-    result = bancosController(db).search_banco(finding,page,records)
+    result = sociedadesController(db).search_sociedades(finding,page,records)
     # debemos convertir los objetos tipo BD a Json
     if (result):
         if (result["result"]=="1"):
@@ -371,10 +370,10 @@ def search_banco(finding : str = Query (min_length=os.getenv("MIN_STR_SEARCH_USE
         return JSONResponse(status_code=520,content={"message":"System Error","error":result})
 
 
-# ruta para actualizar una institución Bancaria por Id
-@bancos_router.put ('/bancos/{id}/update', 
-tags=["Bancos"],
-dependencies=[Depends(JWTBearer())],
+# ruta para actualizar una sociedad por Id
+@sociedades_router.put ('/sociedad/{id}/update', 
+tags=["Sociedades"],
+#dependencies=[Depends(JWTBearer())],
 responses=
     { 
         403: {
@@ -414,13 +413,13 @@ responses=
             },                       
     }
 )
-def update_banco(banco:bancosSchema, user_updater: int = Query(ge=1, le=os.getenv('MAX_ID_USERS')), id : int = Path(ge=1,le=1000))->dict:
+def update_sociedad(sociedad:SocidadeSchema, user_updater: int = Query(ge=1, le=os.getenv('MAX_ID_USERS')), id : int = Path(ge=1,le=1000))->dict:
     db = Session()
     # buscamos el registro
-    result = bancosController(db).update_banco( banco, user_updater, id) 
+    result = sociedadesController(db).update_sociedad(sociedad, user_updater, id) 
     if (result['result']=="1"):
         data=result['data']
-        return JSONResponse(status_code=200,content={"message":"Banco actualizado","Banco":jsonable_encoder(data)})    
+        return JSONResponse(status_code=200,content={"message":"Sociedad actualizada","Sociedad":jsonable_encoder(data)})    
     elif (result['result']=="-1"):
         return JSONResponse(status_code=404,content={"message":"Usuario no encontrado"}) 
     else:

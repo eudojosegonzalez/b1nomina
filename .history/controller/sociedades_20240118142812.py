@@ -1,40 +1,52 @@
 '''
-Este archivo contiene las funciones básicas del CRUD de Bancos del Sistema
+Este archivo contiene las funciones básicas del CRUD de sociedades en el sistema
 Created 2024-01
 '''
 '''
     **********************************************************************
     * Estructura del Modelo                                              *
     **********************************************************************
-    id = Column(BIGINT, primary_key=True, autoincrement=True, nullable=False)
-    codigo = Column(VARCHAR(50), nullable=False, unique=True)
-    nombre = Column(VARCHAR(150), nullable=False)
-    nomina = Column(BOOLEAN, nullable=False)
-    created = Column (DateTime, nullable=False) #datetime NOT NULL,    
-    updated = Column (DateTime, nullable=False)  #datetime NOT NULL,
-    creator_user= Column(BIGINT, nullable=False) #user BIGINT NOT NULL,     
-    updater_user = Column(BIGINT, nullable=False) #user BIGINT NOT NULL, 
+	id	bigint(20) AI PK
+	rut	varchar(100)
+	nombre	varchar(200)
+	direccion	text
+	region_id	bigint(20)
+	comuna_id	bigint(20)
+	ciudad	varchar(250)
+	icono	varchar(250)
+	created	datetime
+	updated	datetime
+	creator_user	bigint(20)
+	updater_user	bigint(20)
 
 
 
     **********************************************************************
     * Estructura del Schema                                              *
     **********************************************************************
-    codigo : str = Field(min_length=3, max_length=50),
-    nombre : str = Field(min_length=3, max_length=150),
-    nomina : int 
+    rut : str = Field(min_length=3, max_length=100),
+    nombre : str = Field(min_length=3, max_length=250),
+    direccion : str = Field(min_length=3, max_length=500),
+    region_id : int = Field(ge=1, le=1000),
+    comuna_id : int = Field(ge=1, le=1000),
+    ciudad : str = Field(min_length=3, max_length=250),
+    icono : str = Field(min_length=3, max_length=250),
 
     model_config = {
         "json_schema_extra": {
             "examples": [
                 {
-                    "codigo": "001",
-                    "nombre":"BANCO CHILE Y EDWARDS",
-                    "nomina": 1
+                    "rut": "RutDemo",
+                    "nombre":"Demo",
+                    "direccion": "Direccion Demo",
+                    "region_id": 1,
+                    "comuna_id": 1,
+                    "ciudad":"Demo ciudad",
+                    'icono':''
                 }
             ]
         }
-    }   
+    } 
 '''   
 
 # import all you need from fastapi-pagination
@@ -51,45 +63,44 @@ import  datetime
 
 
 # importamos el modelo de la base de datos
-from models.bancos import Bancos as BancosModel
-from models.historico_bancos import HistoricoBancos as HistoricoBancosModel
+from models.sociedades import Sociedad as SociedadModel
+from models.historico_sociedades import HistoricoSociedad as HistoricoSociedadModel
 
-
-# importamos el schema de datos
-from schemas.bancos import Bancos as BancosSchema
 
 
 # esto representa los metodos implementados en la tabla
-class bancosController():
+class sociedadesController():
     # metodo constructor que requerira una instancia a la Base de Datos
     def __init__(self,db) -> None:
         self.db = db
 
-    # funcion para crear el registro de historico de bancos
-    #@param banco: Modelo del registro de Bancos
+    # funcion para crear el registro de historico las sociedades
+    #@param sociedad: Modelo del registro de Sociedades
     #@param observavacion: Observación sobre el historico
-    def create_historico_bancos (self, banco: BancosModel, observacion:str):
+    def create_historico_sociedad (self, sociedad: SociedadModel, observacion:str):
         # determinamos la fecha/hora actual
         ahora = datetime.datetime.now()
 
         try:
             #creamos la instancia la nuevo registro del historico
-            newHistoricoBanco= HistoricoBancosModel(
-                
-                banco_id = banco.id,
-                codigo = banco.codigo,
-                nombre = banco.nombre,
-                nomina = banco.nomina,
-                created = banco.created,
-                updated = banco.updated,
-                creator_user= banco.creator_user,
-                updater_user = banco.updater_user,
+            newHistoricoSociedad= HistoricoSociedadModel(
+                rut=sociedad.rut,
+                nombre=sociedad.nombre,
+                direccion=sociedad.direccion,
+                region_id=sociedad.region_id,
+                comuna_id=sociedad.comuna_id,
+                ciudad=sociedad.ciudad,
+                icono=sociedad.icono,
+                created=sociedad.created,
+                updated=sociedad.updated,
+                creator_user=sociedad.creator_user,
+                updater_user=sociedad.updater_user,
                 fecha_registro = ahora,
                 observaciones = observacion
             )
 
             # confirmamos el registro en el historico
-            self.db.add(newHistoricoBanco)
+            self.db.add(newHistoricoSociedad)
             self.db.commit()        
 
             result=True
@@ -100,7 +111,7 @@ class bancosController():
     
     #metodo para insertar  los datos del banco 
     # @userCreatorId: Id del usuario que está creando el registro
-    # @params banco: esquema de los datos banco que se desea insertar       
+    # @params contactoUsuario: esquema de los datos de contacto del usuario que se desea insertar       
     def create_banco(self, banco:BancosSchema, userCreatorId:int ):
         #obtenemos la fecha/hora del servidor
         ahora=datetime.datetime.now()
@@ -165,9 +176,10 @@ class bancosController():
 
     #metodo para consultar los datos de un banco por Id
     # @userUpdaterId: Id del usuario que está actualizando el registro
+    # @params contactoUsuario: esquema de los datos de contacto del usuario que se desea insertar       
     def get_banco(self,id:int):
 
-        # buscamos los datos bancarios
+        # buscamos si este usuario ya tiene datos bancarios
         nRecord = self.db.query(BancosModel).filter(BancosModel.id == id).count()
         
         if (nRecord == 0):
@@ -189,14 +201,14 @@ class bancosController():
                 updater_user = Column(BIGINT, nullable=False) #user BIGINT NOT NULL,                 
                 '''
                 # devolvemos los datos bancarios
-                return ({"result":"1","estado":"Se consiguieron los datos del banco","data":bancoExits})
+                return ({"result":"1","estado":"Se consiguieron los datos de contacto del usuario","data":bancoExits})
             except ValueError as e:
                 # ocurrió un error devolvemos el error
                 return( {"result":"-1","error": str(e)}) 
             
 
     #metodo para efectuar búsquedas en los bancos
-    # @params cadena: cadena que se buscara en la tabla banco comparando con el campo nombre y codigo      
+    # @params cadena: caenaa que se buscara en la tabla banco comparando con el campo nombre y codifo      
     def search_banco(self,finding ,page, records):
 
         findingT="%"+finding+"%"
@@ -214,7 +226,7 @@ class bancosController():
                 result=consulta.all()
                 
                 # devolvemos los resultados
-                return ({"result":"1","estado":"Se encontraron registros coincidentes con los criterios de búsqueda","data":result})
+                return ({"result":"1","estado":"Se encontraron registros coincidentes con los creiterios de búesqueda","data":result})
             else:
                 # los filtros no arrojaron resultados
                  return ({"result":"-1","estado":"No record found"})            
@@ -306,7 +318,7 @@ class bancosController():
                 consulta = consulta.offset(records * (page - 1))
                 listHistoryBancos=consulta.all()
                
-                # se actualizó el registro devolvemoslos registros encontrados
+                # se actualizó el registro devolvemos el registro actualizado
                 return ({"result":"1","estado":"Se consiguieron los datos historicos del banco ","data": listHistoryBancos})
             except ValueError as e:
                 # ocurrió un error devolvemos el error

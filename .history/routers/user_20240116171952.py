@@ -44,7 +44,6 @@ from models.view_general_user import ViewGeneralUser
 
 #importamos el esquema de datos para utilizarlo como referencia de datos a la hora de capturar data
 from schemas.user import User
-from schemas.login import Login
 
 
 #from middleware.error_handler import ErrorHandler
@@ -123,20 +122,20 @@ def login(username : str = Body, password : str = Body):
 # metodo que logea compara el email y la clave enviadas desde  el formulario
 # se crea el token si la claeve y el usuario coinciden
 @user_router.post("/login2", tags=["Auth"])
-def login(login:Login):
+def login(username : str = Body, password : str = Body):
     session = Session()
     # generamos el hash del password del usuario desde la peticion HTTP
-    passWord=hash_password(login.password)
+    passWord=hash_password(password)
     
     #buscamos el usuario
-    userVerified = session.query(UsuarioModel).filter(UsuarioModel.username == login.username).first()
+    userVerified = session.query(UsuarioModel).filter(UsuarioModel.username == username).first()
     
     # existe el usuario
     if (userVerified):
         #retornamos el password del usuario desde la tabla
         hashV=userVerified.password
         #comparamos los password
-        autorized=verify_password(login.password,hashV)
+        autorized=verify_password(password,hashV)
         #determinamos si el usuario está activo
         userActive=userVerified.activo
         #verificamos que esta autorizado 
@@ -159,7 +158,7 @@ def login(login:Login):
                 timestamp_unix = future_time.timestamp()
 
                 # creamos un diccionario para generar el token del usuario
-                userDict={"username":login.username,"password":login.password,"exp":timestamp_unix}
+                userDict={"username":username,"password":password,"exp":timestamp_unix}
                 # generamos el token del usuario
                 token: str = create_token(userDict)
                             
