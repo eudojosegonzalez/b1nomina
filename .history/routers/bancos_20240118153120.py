@@ -118,7 +118,7 @@ def create_banco(banco:bancosSchema, userCreatorId : int = Query (ge=1, le=os.ge
 # ruta para listar los bancos en el sistema
 @bancos_router.get ('/list_bancos', 
 tags=["Bancos"],
-#dependencies=[Depends(JWTBearer())],
+dependencies=[Depends(JWTBearer())],
 responses=
     { 
         403: {

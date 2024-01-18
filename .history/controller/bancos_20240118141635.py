@@ -100,7 +100,7 @@ class bancosController():
     
     #metodo para insertar  los datos del banco 
     # @userCreatorId: Id del usuario que está creando el registro
-    # @params banco: esquema de los datos banco que se desea insertar       
+    # @params contactoUsuario: esquema de los datos de contacto del usuario que se desea insertar       
     def create_banco(self, banco:BancosSchema, userCreatorId:int ):
         #obtenemos la fecha/hora del servidor
         ahora=datetime.datetime.now()
@@ -165,9 +165,10 @@ class bancosController():
 
     #metodo para consultar los datos de un banco por Id
     # @userUpdaterId: Id del usuario que está actualizando el registro
+    # @params contactoUsuario: esquema de los datos de contacto del usuario que se desea insertar       
     def get_banco(self,id:int):
 
-        # buscamos los datos bancarios
+        # buscamos si este usuario ya tiene datos bancarios
         nRecord = self.db.query(BancosModel).filter(BancosModel.id == id).count()
         
         if (nRecord == 0):
@@ -189,14 +190,14 @@ class bancosController():
                 updater_user = Column(BIGINT, nullable=False) #user BIGINT NOT NULL,                 
                 '''
                 # devolvemos los datos bancarios
-                return ({"result":"1","estado":"Se consiguieron los datos del banco","data":bancoExits})
+                return ({"result":"1","estado":"Se consiguieron los datos de contacto del usuario","data":bancoExits})
             except ValueError as e:
                 # ocurrió un error devolvemos el error
                 return( {"result":"-1","error": str(e)}) 
             
 
     #metodo para efectuar búsquedas en los bancos
-    # @params cadena: cadena que se buscara en la tabla banco comparando con el campo nombre y codigo      
+    # @params cadena: caenaa que se buscara en la tabla banco comparando con el campo nombre y codifo      
     def search_banco(self,finding ,page, records):
 
         findingT="%"+finding+"%"
@@ -214,7 +215,7 @@ class bancosController():
                 result=consulta.all()
                 
                 # devolvemos los resultados
-                return ({"result":"1","estado":"Se encontraron registros coincidentes con los criterios de búsqueda","data":result})
+                return ({"result":"1","estado":"Se encontraron registros coincidentes con los creiterios de búesqueda","data":result})
             else:
                 # los filtros no arrojaron resultados
                  return ({"result":"-1","estado":"No record found"})            
@@ -306,7 +307,7 @@ class bancosController():
                 consulta = consulta.offset(records * (page - 1))
                 listHistoryBancos=consulta.all()
                
-                # se actualizó el registro devolvemoslos registros encontrados
+                # se actualizó el registro devolvemos el registro actualizado
                 return ({"result":"1","estado":"Se consiguieron los datos historicos del banco ","data": listHistoryBancos})
             except ValueError as e:
                 # ocurrió un error devolvemos el error

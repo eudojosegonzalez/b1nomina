@@ -24,7 +24,6 @@ from routers.afp import afp_router
 from routers.basic_parameter import basic_parameter_router
 from routers.eventos import eventos_router
 from routers.nomina import nomina_router
-from routers.sociedades import sociedades_router
 
 
 
@@ -117,7 +116,6 @@ app.include_router(bancos_router)
 app.include_router(basic_parameter_router)
 app.include_router(eventos_router)
 app.include_router(nomina_router)
-app.include_router(sociedades_router)
 
 
 # esto crea la base de datos si no existe al empezar la app
