@@ -462,39 +462,34 @@ class userController():
     # @params userId: id del Usuario que se desea consultar
     def get_user_modules(self, userId):
         #buscamos los modulos del sistema
-        Modulos= list(self.db.query(ModuloModel).filter(ModuloModel.estado==1).all())
+        Modulos= self.db.query(ModuloModel).all()
 
         # buscamos los modulos asociados al usuario
-        ModulosUsuario= list(self.db.query(viewGeneralUserModuloModel).filter(viewGeneralUserModuloModel.user_id==userId).all())
-    
-
-        #recorremos los modulos
-        ModulosAsignados=[]
-
-
+        '''        
+        ModulosUsuario= self.db.query(viewGeneralUserModuloModel).filter(viewGeneralUserModuloModel.user_id==userId).all()
+        modulosAsignados={}
         for modulo in Modulos:
             idModulo=modulo.id
             nombreModulo=modulo.nombre
             urlModulo=modulo.url
-            iconoModulo=modulo.icono
-            asignado=False
-            for moduloAsignado in ModulosUsuario:
-                idModuloAsignadoV=moduloAsignado.modulo_id
-                if (idModuloAsignadoV==idModulo):
-                    asignado=True
-                
-            elemento={
-                "idModulo":idModulo,
-                "nombreModulo":nombreModulo,
-                "urlModulo":urlModulo,
-                "iconoModulo":iconoModulo,
-                "asignado":asignado
-            }
-            ModulosAsignados.append(elemento)
-                
-        result= ModulosAsignados
+            iconoModulo=modulo.icono 
+            autorizado=False
+            for moduloUsuario in ModulosUsuario:
+                if (moduloUsuario.modulo_id == idModulo):
+                    autorizado=True
+            
+            modulosAsignados[modulo["id"]] = {
+                "id":modulo["id"],
+                "nombre": modulo["nombre"],
+                "url": modulo["apellido"],
+                "icono":modulo["icono"],
+                "permiso":autorizado
+            } '''
+
+
+        result=Modulos
 
         if (result):
-            return ({"result":"1","estado":"Modulos de Usuario encontrado","resultado":result})                            
+            return ({"result":"1","estado":"Modulos de Usuario encontrado","resultado":result })                            
         else:
             return ({"result":"-1","estado":"Modulos de Usuario encontrado","userId":userId })   

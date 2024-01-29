@@ -735,7 +735,7 @@ def get_user_history_data_personal(id:int = Path(ge=1, le=os.getenv("MAX_ID_USER
 @user_router.get (
 '/user/{id}/asignated_modules',
 tags=['Usuarios'],
-dependencies=[Depends(JWTBearer())],
+#dependencies=[Depends(JWTBearer())],
 responses=
     { 
         200: {
@@ -745,11 +745,13 @@ responses=
                         { 
                             "example":
                                 {                           
-                                    "message":"Modulos de Usuario encontrado",
+                                    "message":"Usuario encontrado",
                                     "data": "{'idModulo': 3,'nombreModulo': 'Eventos','urlModulo': '/eventos','iconoModulo': '', 'asignado': false }",
                                 }
                         } 
+                    
                 } 
+                    
             },         
         403: {
             "description": "Forbiden",

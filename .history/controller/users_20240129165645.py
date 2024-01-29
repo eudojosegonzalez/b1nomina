@@ -487,7 +487,7 @@ class userController():
                 "idModulo":idModulo,
                 "nombreModulo":nombreModulo,
                 "urlModulo":urlModulo,
-                "iconoModulo":iconoModulo,
+                "iconoMoudlo":iconoModulo,
                 "asignado":asignado
             }
             ModulosAsignados.append(elemento)

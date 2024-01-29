@@ -484,10 +484,10 @@ class userController():
                     asignado=True
                 
             elemento={
-                "idModulo":idModulo,
+                "iModulo":idModulo,
                 "nombreModulo":nombreModulo,
                 "urlModulo":urlModulo,
-                "iconoModulo":iconoModulo,
+                "iconoMoudlo":iconoModulo,
                 "asignado":asignado
             }
             ModulosAsignados.append(elemento)

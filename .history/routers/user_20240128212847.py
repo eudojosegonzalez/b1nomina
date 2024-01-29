@@ -730,77 +730,8 @@ def get_user_history_data_personal(id:int = Path(ge=1, le=os.getenv("MAX_ID_USER
     
     return JSONResponse(status_code=404,content={"message":"Usuario no encontrado"})  
 
+#funcion para determianr los modulos acisnados a un usuario 
 
-#funcion para determianr los modulos asignados a un usuario 
-@user_router.get (
-'/user/{id}/asignated_modules',
-tags=['Usuarios'],
-dependencies=[Depends(JWTBearer())],
-responses=
-    { 
-        200: {
-                "description": "Módulos asignados",
-                "content": { 
-                    "application/json":
-                        { 
-                            "example":
-                                {                           
-                                    "message":"Modulos de Usuario encontrado",
-                                    "data": "{'idModulo': 3,'nombreModulo': 'Eventos','urlModulo': '/eventos','iconoModulo': '', 'asignado': false }",
-                                }
-                        } 
-                } 
-            },         
-        403: {
-            "description": "Forbiden",
-            "content": { 
-                "application/json":{ 
-                    "example":
-                        {
-                            "message":"Not authenticated"
-                        }
-                    } 
-                }       
-            },  
-        404: {
-            "description": "Usuario no encontrado",
-            "content": { 
-                "application/json":{ 
-                    "example":
-                        {
-                            "message":"Usuario no encontrado"
-                        }
-                    } 
-                }       
-            },   
-        500: {
-            "description": "Su session ha expirado",
-            "content": { 
-                "application/json":
-                    { "example":
-                        {
-                            "message":"Su session ha expirado",
-                            "estado":"Signature has expired"
-                        }
-                    } 
-                }       
-            },                                                           
-    }    
-)
-def get_user_modules(id:int = Path(ge=1, le=os.getenv("MAX_ID_USERS")))->dict:
-    db = Session()
-    # almacenamos el listado de usarios en un resultset
-    result = userController(db).get_user_modules(id)
-    # debemnos convertir los objetos tipo BD a Json
-    if (result):
-        if (result["result"]=="1"):
-            data=result['resultado']
-            return JSONResponse(status_code=200,content=jsonable_encoder(data))    
-        else:
-            return JSONResponse(status_code=404,content={"message":"Este usuario no tiene modulos asignados"})     
-    
-    
-    return JSONResponse(status_code=404,content={"message":"Este usuario no tiene modulos asignados"})  
 
 '''
 ============================ rutas PUT =================================================================
