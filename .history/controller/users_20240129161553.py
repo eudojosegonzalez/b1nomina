@@ -471,30 +471,35 @@ class userController():
         #recorremos los modulos
         ModulosAsignados=[]
 
+        i=""
+        for m in Modulos:
+           i=m
 
-        for modulo in Modulos:
-            idModulo=modulo.id
-            nombreModulo=modulo.nombre
-            urlModulo=modulo.url
-            iconoModulo=modulo.icono
+        '''     
+        i=0
+        for modulob in Modulos:
+          
+            idModulo=modulob['id']
             asignado=False
             for moduloAsignado in ModulosUsuario:
-                idModuloAsignadoV=moduloAsignado.modulo_id
-                if (idModuloAsignadoV==idModulo):
+                if (idModulo==moduloAsignado['modulo_id']):
                     asignado=True
                 
-            elemento={
-                "idModulo":idModulo,
-                "nombreModulo":nombreModulo,
-                "urlModulo":urlModulo,
-                "iconoModulo":iconoModulo,
-                "asignado":asignado
-            }
-            ModulosAsignados.append(elemento)
-                
-        result= ModulosAsignados
+            if (asignado):
+                elemento={
+                    "modulo_id":idModulo,
+                    "nombre_modulo":modulob['nombre'],
+                    "url":modulob['url'],
+                    "icono":modulob['icono'],
+                    "estado":True
+                }
+                ModulosAsignados.append(elemento)
+                i=i+1'''
+        
+
+        result= ModulosUsuario
 
         if (result):
-            return ({"result":"1","estado":"Modulos de Usuario encontrado","resultado":result})                            
+            return ({"result":"1","estado":"Modulos de Usuario encontrado","resultado":i })                            
         else:
             return ({"result":"-1","estado":"Modulos de Usuario encontrado","userId":userId })   

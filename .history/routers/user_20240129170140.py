@@ -745,7 +745,7 @@ responses=
                         { 
                             "example":
                                 {                           
-                                    "message":"Modulos de Usuario encontrado",
+                                    "message":"Usuario encontrado",
                                     "data": "{'idModulo': 3,'nombreModulo': 'Eventos','urlModulo': '/eventos','iconoModulo': '', 'asignado': false }",
                                 }
                         } 

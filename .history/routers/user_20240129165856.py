@@ -735,7 +735,7 @@ def get_user_history_data_personal(id:int = Path(ge=1, le=os.getenv("MAX_ID_USER
 @user_router.get (
 '/user/{id}/asignated_modules',
 tags=['Usuarios'],
-dependencies=[Depends(JWTBearer())],
+#dependencies=[Depends(JWTBearer())],
 responses=
     { 
         200: {
@@ -745,11 +745,13 @@ responses=
                         { 
                             "example":
                                 {                           
-                                    "message":"Modulos de Usuario encontrado",
-                                    "data": "{'idModulo': 3,'nombreModulo': 'Eventos','urlModulo': '/eventos','iconoModulo': '', 'asignado': false }",
+                                    "message":"Usuario encontrado",
+                                    "data": "{'id':'1','user_id':'1','modulo_id':'1','estado','1','created':'1990-01-01 10:00','updated':'1990-01-01 11:00','creator_user':'1','updater_user':'1','nombremodulo':'Empleados','urlmodulo':'/empleados','iconomodulo','','estadomodulo':'1' }",
                                 }
                         } 
+                    
                 } 
+                    
             },         
         403: {
             "description": "Forbiden",

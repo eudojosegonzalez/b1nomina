@@ -483,14 +483,14 @@ class userController():
                 if (idModuloAsignadoV==idModulo):
                     asignado=True
                 
-            elemento={
-                "idModulo":idModulo,
-                "nombreModulo":nombreModulo,
-                "urlModulo":urlModulo,
-                "iconoModulo":iconoModulo,
-                "asignado":asignado
-            }
-            ModulosAsignados.append(elemento)
+                elemento={
+                    "iModulo":idModulo,
+                    "nombreModulo":nombreModulo,
+                    "urlModulo":urlModulo,
+                    "iconoMoudlo":iconoModulo,
+                    "asignado":asignado
+                }
+                ModulosAsignados.append(elemento)
                 
         result= ModulosAsignados
 

@@ -64,7 +64,6 @@ import  datetime
 #Importamos los modeloas necesarios
 from models.user import Usuario as UsuarioModel
 from models.historico_user import HistoricoUsuario as HistoricoUsuarioModel
-from models.modulo import Modulo as ModuloModel
 #from models.files_users import ArchivosUsuarios as ArchivosUsuariosModel
 from models.view_general_user import ViewGeneralUser
 from models.view_general_user_modulos import viewGeneralUserModulo as viewGeneralUserModuloModel
@@ -461,40 +460,8 @@ class userController():
     # metodo para consultar por Id los modulos asignados a una persona
     # @params userId: id del Usuario que se desea consultar
     def get_user_modules(self, userId):
-        #buscamos los modulos del sistema
-        Modulos= list(self.db.query(ModuloModel).filter(ModuloModel.estado==1).all())
-
-        # buscamos los modulos asociados al usuario
-        ModulosUsuario= list(self.db.query(viewGeneralUserModuloModel).filter(viewGeneralUserModuloModel.user_id==userId).all())
-    
-
-        #recorremos los modulos
-        ModulosAsignados=[]
-
-
-        for modulo in Modulos:
-            idModulo=modulo.id
-            nombreModulo=modulo.nombre
-            urlModulo=modulo.url
-            iconoModulo=modulo.icono
-            asignado=False
-            for moduloAsignado in ModulosUsuario:
-                idModuloAsignadoV=moduloAsignado.modulo_id
-                if (idModuloAsignadoV==idModulo):
-                    asignado=True
-                
-            elemento={
-                "idModulo":idModulo,
-                "nombreModulo":nombreModulo,
-                "urlModulo":urlModulo,
-                "iconoModulo":iconoModulo,
-                "asignado":asignado
-            }
-            ModulosAsignados.append(elemento)
-                
-        result= ModulosAsignados
-
+        result= self.db.query(viewGeneralUserModuloModel).filter(viewGeneralUserModuloModel.user_d==userId).all()
         if (result):
-            return ({"result":"1","estado":"Modulos de Usuario encontrado","resultado":result})                            
+            return ({"result":"1","estado":"Modulos de Usuario encontrado","resultado":result })                            
         else:
             return ({"result":"-1","estado":"Modulos de Usuario encontrado","userId":userId })   
