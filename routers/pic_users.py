@@ -128,9 +128,9 @@ responses=
                 }       
             },
     })
-async def pic_upload_user(creatorUserId : int = Query (ge=1, le=os.getenv("MAX_ID_USERS")) ,id : int = Path (ge=1, le=os.getenv("MAX_ID_USERS")),file : UploadFile=File())->dict:
+async def pic_upload_user(creatorUserId : int = Query (ge=1, le=os.getenv("MAX_ID_USERS")) ,id : int = Path (ge=1, le=os.getenv("MAX_ID_USERS")),File : UploadFile=File())->dict:
     db = Session()
-    result=PicUserController(db).upload_pic_user(creatorUserId,id,file)
+    result=PicUserController(db).upload_pic_user(creatorUserId,id,File)
     # evaluamos el resultado
     estado=result['result']
 
@@ -151,7 +151,7 @@ async def pic_upload_user(creatorUserId : int = Query (ge=1, le=os.getenv("MAX_I
 
 # Funcion para consultar los datos de un archivo de un usuario
 @pic_user_router.get (
- '/user/get_pic_user/{id}',
+ '/user/{id}/get_pic_user',
  tags=['Fotos de Usuarios'],
 dependencies=[Depends(JWTBearer())],
  responses=
@@ -224,7 +224,7 @@ def get_pic_user(id:int = Path(ge=1, le=os.getenv("MAX_FILES_USERS")))->dict:
 
 
 # Funcion para eliminar foto del profile de un usuario
-@pic_user_router.delete ('/user/delete_pic_user',
+@pic_user_router.delete ('/user/{id}/delete_pic_user',
 tags=['Fotos de Usuarios'],
 dependencies=[Depends(JWTBearer())], 
 responses=
@@ -264,7 +264,19 @@ responses=
                     } 
                 }       
             },                          
-        501: {
+        520: {
+            "description": "No se pudo elimiar el registro",
+            "content": { 
+                "application/json":
+                    { "example":
+                        {
+                            "message":"No se pudo elimiar el registro",
+                            "estado":"System Error"
+                        }
+                    } 
+                }       
+            },         
+        521: {
             "description": "Ocurrió un error que no pudo ser controlado",
             "content": { 
                 "application/json":
@@ -277,8 +289,22 @@ responses=
                 }       
             },                       
     })
-def pic_delete_user():
-    return JSONResponse (status_code=200,content={"message":"En desarrollo"}) 
+def pic_delete_user(id : int = Path (ge=1, le=os.getenv("MAX_ID_USERS"))):
+    db = Session()
+    # almacenamos el listado de usarios en un resultset
+    result = PicUserController(db).delete_pic_user(id)
+    # debemnos convertir los objetos tipo BD a Json
+    if (result):
+        if (result["result"]=="1"):
+            data=result['estado']
+            return JSONResponse(status_code=201,content=jsonable_encoder(data))    
+        elif (result["result"]=="-3"):
+            data=result["estado"]
+            return JSONResponse(status_code=521,content=jsonable_encoder(data))    
+        else:
+            return JSONResponse(status_code=404,content={"message":"Archivo no encontrado"})     
+   
+    return JSONResponse(status_code=520,content={"message":"Ocurrió un error que no pudo ser controlado"})  
 
 
 

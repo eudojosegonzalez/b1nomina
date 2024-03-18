@@ -35,6 +35,18 @@ from routers.dashboard_admin import dashboard_admin_router
 from routers.unidades_pacto import unidades_pacto_router
 from routers.periodos import periodos_router
 from routers.categorias_configuracion import categorias_configuracion_router
+from routers.configuracion import configuracion_router
+from routers.prevision_salud import prevision_salud_router
+from routers.cuentas_contables import cuentas_contables_router
+from routers.tipos_prestamos import tipos_prestamos_router
+from routers.cajas_compensacion import cajas_compensacion_router
+from routers.tramos_impuesto_unico import tramos_impuesto_unico_router
+from routers.tramos_asignacion_familiar import tramos_asignacion_familiar_router
+from routers.datos_laborales import datos_laborales_router
+from routers.datos_pago import datos_pago_router
+from routers.usuarios_afc import usuarios_afc_router
+from routers.usuarios_afp import usuarios_afp_router
+from routers.usuarios_prevision_salud import usuarios_prevision_salud_router
 
 #importamos el manejador de errores
 from middleware.error_handler import ErrorHandler
@@ -71,8 +83,28 @@ tags_metadata = [
     },     
     {
         "name": "Bancarios Usuarios",
-        "description": "Operaciones relacionadas con los datos de pago de los Usuarios",
-    },        
+        "description": "Operaciones relacionadas con los Datos de Pago de los Usuarios",
+    },   
+    {
+        "name": "Datos Laborales",
+        "description": "Operaciones relacionadas con los Datos Laborales de los Usuarios",
+    },    
+    {
+        "name": "Datos Pago",
+        "description": "Operaciones relacionadas con los Datos de Pago de los Usuarios",
+    },      
+    {
+        "name": "AFC Usuarios",
+        "description": "Operaciones relacionadas con los Datos AFC de los Usuarios",
+    },  
+    {
+        "name": "AFP Usuarios",
+        "description": "Operaciones relacionadas con los Datos AFP de los Usuarios",
+    }, 
+    {
+        "name": "Prevision Salud Usuarios",
+        "description": "Operaciones relacionadas con los Datos Prevision Salud de los Usuarios",
+    },                    
     {
         "name": "Instituciones AFP",
         "description": "Operaciones relacionadas con las instituciones AFP",
@@ -84,6 +116,10 @@ tags_metadata = [
     {
         "name": "Categorias Configuracion",
         "description": "Operaciones relacionadas con las Categorias de Configuración del Sistema",
+    },     
+    {
+        "name": "Configuracion",
+        "description": "Operaciones relacionadas con la Configuración del Sistema",
     },     
     {
         "name": "Periodos",
@@ -133,14 +169,37 @@ tags_metadata = [
         "name": "Cargos",
         "description": "Operaciones relacionadas con los Cargos de las Sociedades",
     },  
-              
+    {
+        "name": "Prevision Salud",
+        "description": "Operaciones relacionadas con las Instituciones de Prevision Salud",
+    },  
+    {
+        "name": "Cuentas Contables",
+        "description": "Operaciones relacionadas con las Cuentas Contables",
+    },    
+    {
+        "name": "Tipos Prestamos",
+        "description": "Operaciones relacionadas con los Tipos Prestamos",
+    },           
+    {
+        "name": "Cajas Compensacion",
+        "description": "Operaciones relacionadas con las Cajas de Compensación",
+    },     
+    {
+        "name": "Tramos Impuesto Unico",
+        "description": "Operaciones relacionadas con los Tramos de Impuesto Único",
+    },   
+    {
+        "name": "Tramos Asignacion Familiar",
+        "description": "Operaciones relacionadas con los Tramos de Asignacion Familiar",
+    },  
 ]
 
 #cargamos las variables de entorno
 dotenv.load_dotenv()
 
 #Cargamos la documentacion de las rutas
-app = FastAPI(openapi_tags=tags_metadata)
+app = FastAPI(openapi_tags=tags_metadata,debug=True)
 app.title='Core B1 Nomina by Kyros'
 app.version='V1.0'
 
@@ -164,7 +223,13 @@ app.include_router(user_ubicacion_router)
 app.include_router(files_user_router)
 app.include_router(pic_user_router)
 app.include_router(bancarios_user_router)
+app.include_router(datos_laborales_router)
+app.include_router(datos_pago_router)
+app.include_router(usuarios_afc_router)
+app.include_router(usuarios_afp_router)
+app.include_router(usuarios_prevision_salud_router)
 app.include_router(categorias_configuracion_router)
+app.include_router(configuracion_router)
 app.include_router(periodos_router)
 app.include_router(afp_router)
 app.include_router(bancos_router)
@@ -180,6 +245,14 @@ app.include_router(mutuales_router)
 app.include_router(dashboard_admin_router)
 app.include_router(unidades_pacto_router)
 app.include_router(apv_router)
+app.include_router(prevision_salud_router)
+app.include_router(cuentas_contables_router)
+app.include_router(tipos_prestamos_router)
+app.include_router(cajas_compensacion_router)
+app.include_router(tramos_impuesto_unico_router)
+app.include_router(tramos_asignacion_familiar_router)
+
+
 
 
 # esto crea la base de datos si no existe al empezar la app

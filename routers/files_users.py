@@ -125,7 +125,7 @@ async def file_upload_user(creatorUserId:int = Query(ge=1, le=os.getenv("MAX_ID_
 
 # Funcion para consultar los datos de un archivo de un usuario
 @files_user_router.get (
- '/user/get_file_user/{id}',
+ '/user/get_file_user/{id}/',
 tags=['Archivos de Usuarios'],
 dependencies=[Depends(JWTBearer())],
  responses=
@@ -240,10 +240,10 @@ responses=
             },                         
     }
 )
-async def list_files_users(id: int = Path (ge=1, le=os.getenv("MAX_ID_USERS")),page : int = 1, records : int = 20)->dict:
+async def list_files_users(id: int = Path (ge=1, le=os.getenv("MAX_ID_USERS")))->dict:
     db = Session()
     # almacenamos el listado de usarios en un resultset
-    result = FilesUserController(db).list_files_users(id,page,records)
+    result = FilesUserController(db).list_files_users(id)
 
     # debemnos convertir los objetos tipo BD a Json
     if (result):
@@ -254,7 +254,7 @@ async def list_files_users(id: int = Path (ge=1, le=os.getenv("MAX_ID_USERS")),p
 
 
 # Funcion para eliminar archivos al profile de un usuario
-@files_user_router.delete ('/user/delete_file_users',
+@files_user_router.delete ('/user/delete_file_users/{id}',
 tags=['Archivos de Usuarios'],
 dependencies=[Depends(JWTBearer())], 
 responses=
@@ -294,7 +294,19 @@ responses=
                     } 
                 }       
             },                        
-          501: {
+        520: {
+            "description": "No se pudo elimiar el registro",
+            "content": { 
+                "application/json":
+                    { "example":
+                        {
+                            "message":"No se pudo elimiar el registro",
+                            "estado":"System Error"
+                        }
+                    } 
+                }       
+            },           
+        521: {
             "description": "Ocurrió un error que no pudo ser controlado",
             "content": { 
                 "application/json":
@@ -305,11 +317,25 @@ responses=
                         }
                     } 
                 }       
-            },                       
+        },                       
 
 
     })
-def file_delete_user():
-    return JSONResponse (status_code=200,content={"message":"En desarrollo"}) 
+def file_delete_user(id : int = Path (ge=1, le=20000)):
+    db = Session()
+    # almacenamos el listado de usarios en un resultset
+    result = FilesUserController(db).delete_file_user(id)
+    # debemnos convertir los objetos tipo BD a Json
+    if (result):
+        if (result["result"]=="1"):
+            data=result['estado']
+            return JSONResponse(status_code=201,content=jsonable_encoder(data))    
+        elif (result["result"]=="-3"):
+            data=result["estado"]
+            return JSONResponse(status_code=520,content=jsonable_encoder(data))    
+        else:
+            return JSONResponse(status_code=404,content={"message":"Archivo no encontrado"})     
+   
+    return JSONResponse(status_code=521,content={"message":"Ocurrió un error que no pudo ser controlado"})  
 
 

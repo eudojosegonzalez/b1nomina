@@ -144,25 +144,42 @@ CREATE TABLE `HistoricoPrevisionSalud` (
 
 
 -- CajasCompesacion
-CREATE TABLE IF NOT EXISTS `CajasCompesacion` (
-    `id` BIGINT AUTO_INCREMENT NOT NULL,
-    `nombre` VARCHAR(200) NOT NULL,
-    `codigo_externo` VARCHAR(50) NOT NULL,
-    `cuenta_contable` VARCHAR(50) NOT NULL,
-    `codigo_direccion_trabajo` VARCHAR(10) NULL,    
-    `created` DATETIME NOT NULL COMMENT 'fecha en que fue creado el parametro',
-    `updated` DATETIME NOT NULL COMMENT 'fecha en que fue actualizado el parametro',
-    `creator_user` BIGINT NOT NULL COMMENT 'usuario que creó el parametro',
-    `updater_user` BIGINT NOT NULL COMMENT 'usuario que actualizó el parametro',
-    PRIMARY KEY (`id`)
-)  ENGINE=INNODB DEFAULT CHARSET=UTF8 COMMENT 'Tabla para controlarlar las las cajas de compensacion';
+CREATE TABLE IF NOT EXISTS `CajasCompensacion` (
+	`id` BIGINT AUTO_INCREMENT NOT NULL,
+	`nombre` VARCHAR(200) NOT NULL,
+	`codigo_externo` VARCHAR(50) NOT NULL,
+	`cuenta_contable` VARCHAR(50) NOT NULL,
+	`codigo_direccion_trabajo` VARCHAR(10) NULL,    
+	`created` DATETIME NOT NULL COMMENT 'fecha en que fue creado el parametro',
+	`updated` DATETIME NOT NULL COMMENT 'fecha en que fue actualizado el parametro',
+	`creator_user` BIGINT NOT NULL COMMENT 'usuario que creó el parametro',
+	`updater_user` BIGINT NOT NULL COMMENT 'usuario que actualizó el parametro',
+	PRIMARY KEY (`id`)
+)  ENGINE=INNODB DEFAULT CHARSET=UTF8 COMMENT 'Tabla para controlarlar los datos de las cajas de compensacion';
 
-INSERT INTO `CajasCompesacion` VALUES(1, 'Sin CCAF', '00', '21050003', '0', '1990-01-01', '1990-01-01', '1', '1');
-INSERT INTO `CajasCompesacion` VALUES(2, 'Los Andes', '01', '21050003', '1', '1990-01-01', '1990-01-01', '1', '1');
-INSERT INTO `CajasCompesacion` VALUES(3, 'La Araucana', '02', '21050003', '2', '1990-01-01', '1990-01-01', '1', '1');
-INSERT INTO `CajasCompesacion` VALUES(4, 'Los Héroes', '03', '21050003', '3', '1990-01-01', '1990-01-01', '1', '1');
-INSERT INTO `CajasCompesacion` VALUES(5, 'Gabriela Mistral', '05', '21050003', NULL, '1990-01-01', '1990-01-01', '1', '1');
-INSERT INTO `CajasCompesacion` VALUES(6, '18 de Septiembre', '06', '21050003', '4', '1990-01-01', '1990-01-01', '1', '1');
+INSERT INTO `CajasCompensacion` VALUES(1, 'Sin CCAF', '00', '21050003', '0', '1990-01-01', '1990-01-01', '1', '1');
+INSERT INTO `CajasCompensacion` VALUES(2, 'Los Andes', '01', '21050003', '1', '1990-01-01', '1990-01-01', '1', '1');
+INSERT INTO `CajasCompensacion` VALUES(3, 'La Araucana', '02', '21050003', '2', '1990-01-01', '1990-01-01', '1', '1');
+INSERT INTO `CajasCompensacion` VALUES(4, 'Los Héroes', '03', '21050003', '3', '1990-01-01', '1990-01-01', '1', '1');
+INSERT INTO `CajasCompensacion` VALUES(5, 'Gabriela Mistral', '05', '21050003', NULL, '1990-01-01', '1990-01-01', '1', '1');
+INSERT INTO `CajasCompensacion` VALUES(6, '18 de Septiembre', '06', '21050003', '4', '1990-01-01', '1990-01-01', '1', '1');
+
+-- CajasCompesacion
+CREATE TABLE IF NOT EXISTS `HistoricoCajasCompensacion` (
+	`id` BIGINT AUTO_INCREMENT NOT NULL,
+	`caja_compensacion_id` BIGINT  NOT NULL,    
+	`nombre` VARCHAR(200) NOT NULL,
+	`codigo_externo` VARCHAR(50) NOT NULL,
+	`cuenta_contable` VARCHAR(50) NOT NULL,
+	`codigo_direccion_trabajo` VARCHAR(10) NULL,    
+	`created` DATETIME NOT NULL COMMENT 'fecha en que fue creado el parametro',
+	`updated` DATETIME NOT NULL COMMENT 'fecha en que fue actualizado el parametro',
+	`creator_user` BIGINT NOT NULL COMMENT 'usuario que creó el parametro',
+	`updater_user` BIGINT NOT NULL COMMENT 'usuario que actualizó el parametro',
+	`fecha_registro` datetime NOT NULL,
+	`observaciones` text DEFAULT NULL,    
+    PRIMARY KEY (`id`)
+)  ENGINE=INNODB DEFAULT CHARSET=UTF8 COMMENT 'Tabla para controlarlar los datos historicos de las cajas de compensacion';
 
 
 -- Mutuales
@@ -192,24 +209,53 @@ create table if not exists `UnidadesPacto` (
     primary key (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 comment 'Tabla para controlar las unidades de pacto de los eventos de nomina';
 
--- TramosImpuestoUnico
+
+-- tramos de impuesto unico --
 CREATE TABLE `TramosImpuestoUnico` (
-	`id` int NOT NULL,
-	`tramo` nvarchar(50)  NOT NULL,
-	`desde` numeric(18,4) NOT NULL,
-	`hasta` numeric(18,4) NOT NULL,
-	`factor` numeric(18,4) NULL,
-	`rebaja` numeric(18,4) NULL,
-	`created` datetime NOT NULL,    
-	`updated`  datetime NOT NULL,   
-    `creator_user` BIGINT NOT NULL,     
-    `updater_user` BIGINT NOT NULL,         
+  `id` bigint auto_increment NOT NULL,
+  `tramo` varchar(50) NOT NULL,
+  `desde` decimal(18,4) NOT NULL,
+  `hasta` decimal(18,4) NOT NULL,
+  `factor` decimal(18,4) DEFAULT NULL,
+  `rebaja` decimal(18,4) DEFAULT NULL,
+  `created` datetime NOT NULL,
+  `updated` datetime NOT NULL,
+  `creator_user` bigint(20) NOT NULL,
+  `updater_user` bigint(20) NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Tabla de TramosImpuestoUnico';
+
+insert into  `TramosImpuestoUnico` values ('1','Tramo 1','0.000','13.500','0.000','0.000','2024-02-26 10:00','2024-02-26 10:00','1','1');
+insert into  `TramosImpuestoUnico` values ('2','Tramo 2','13.500','30.000','0.040','0.540','2024-02-26 10:00','2024-02-26 10:00','1','1');
+insert into  `TramosImpuestoUnico` values ('3','Tramo 3','30.000','50.000','0.080','1.740','2024-02-26 10:00','2024-02-26 10:00','1','1');
+insert into  `TramosImpuestoUnico` values ('4','Tramo 4','50.000','70.000','0.135','4.490','2024-02-26 10:00','2024-02-26 10:00','1','1');
+insert into  `TramosImpuestoUnico` values ('5','Tramo 5','70.000','90.000','0.230','11.140','2024-02-26 10:00','2024-02-26 10:00','1','1');
+insert into  `TramosImpuestoUnico` values ('6','Tramo 6','90.000','120.000','0.304','17.800','2024-02-26 10:00','2024-02-26 10:00','1','1');
+insert into  `TramosImpuestoUnico` values ('7','Tramo 7','120.000','10.000','0.350','23.320','2024-02-26 10:00','2024-02-26 10:00','1','1');
+insert into  `TramosImpuestoUnico` values ('8','Tramo 8','310.000','999.000','0.400','38.820','2024-02-26 10:00','2024-02-26 10:00','1','1');
+
+-- historico de tramos de impuesto unico
+CREATE TABLE `HistoricocoTramosImpuestoUnico` (
+	`id` bigint auto_increment NOT NULL,
+	`tramo_impuesto_id` bigint NOT NULL,  
+	`tramo` varchar(50) NOT NULL,
+	`desde` decimal(18,4) NOT NULL,
+	`hasta` decimal(18,4) NOT NULL,
+	`factor` decimal(18,4) DEFAULT NULL,
+	`rebaja` decimal(18,4) DEFAULT NULL,
+	`created` datetime NOT NULL,
+	`updated` datetime NOT NULL,
+	`creator_user` bigint(20) NOT NULL,
+	`updater_user` bigint(20) NOT NULL,
+	`fecha_registro` datetime NOT NULL,
+	`observaciones` text DEFAULT NULL,    
 	PRIMARY KEY (`id`)
-) ENGINE=INNODB DEFAULT CHARSET=UTF8 comment 'Tabla de TramosImpuestoUnico';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Tabla de Historico de TramosImpuestoUnico';
+
 
 -- TramosAsignacionFamiliar
 CREATE TABLE `TramosAsignacionFamiliar` (
-	`id` bigint NOT NULL,
+	`id` bigint auto_increment NOT NULL,
 	`tramo` nvarchar(5) not NULL,
 	`desde` numeric(18,4) NULL,
 	`hasta` numeric(18,4) NULL,
@@ -219,8 +265,29 @@ CREATE TABLE `TramosAsignacionFamiliar` (
     `creator_user` BIGINT NOT NULL,     
     `updater_user` BIGINT NOT NULL,    
 	 PRIMARY KEY (`id`)
-) ENGINE=INNODB DEFAULT CHARSET=UTF8 comment 'Tabla de TramosImpuestoUnico';
+) ENGINE=INNODB DEFAULT CHARSET=UTF8 comment 'Tabla de Tramos de Asignacion Familiar';
 
+insert into TramosAsignacionFamiliar values ('1','A','0.000','315841.000','12364','2024-02-27 15:00','2024-02-27 15:00','1','1');
+insert into TramosAsignacionFamiliar values ('2','B','315841.000','461320.000','7587','2024-02-27 15:00','2024-02-27 15:00','1','1');
+insert into TramosAsignacionFamiliar values ('3','C','461320.000','719502.000','2398','2024-02-27 15:00','2024-02-27 15:00','1','1');
+insert into TramosAsignacionFamiliar values ('4','D','719502.000','9999999.000','0','2024-02-27 15:00','2024-02-27 15:00','1','1');
+
+-- TramosAsignacionFamiliar
+CREATE TABLE `HistoricoTramosAsignacionFamiliar` (
+	`id` bigint auto_increment not NULL,
+	`tramo_asignacion_familiar_id` bigint not NULL,    
+	`tramo` nvarchar(5) not NULL,
+	`desde` numeric(18,4) NULL,
+	`hasta` numeric(18,4) NULL,
+	`valor_carga` numeric(18,4) NULL,
+	`created` datetime NOT NULL,    
+	`updated`  datetime NOT NULL,   
+    `creator_user` BIGINT NOT NULL,     
+    `updater_user` BIGINT NOT NULL,   
+	`fecha_registro` datetime NOT NULL,
+	`observaciones` text DEFAULT NULL,    
+	 PRIMARY KEY (`id`)
+) ENGINE=INNODB DEFAULT CHARSET=UTF8 comment 'Tabla de Historico Tramos Asignacion Familiar';
 
 -- InstitucionesAPV
 CREATE TABLE `InstitucionesAPV` (
@@ -1291,25 +1358,106 @@ CREATE TABLE `HistoricoBancariosUser` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Tabla de historico datos bancarios de pagos del usuario';
 
+-- datos laborales
+CREATE TABLE `DatosLaborales` (
+	`id` bigint NOT NULL AUTO_INCREMENT,
+	`sociedad_id` bigint not null,
+	`sede_id` bigint not null,
+	`departamento_id` bigint not null,    
+	`grupo_id` bigint not null,
+	`cargo_id` bigint not null,    
+	`user_id` bigint NOT NULL,
+	`tipo_contrato` int NOT NULL,  
+	`termino_contrato` int NOT NULL,
+	`fecha_inicio` date NOT NULL,
+	`fecha_fin` date NULL, 
+	`periodo_salario` int not null comment 'Representa cual es el periodo en dias de calculo de nomina 1 Quincenal 2 Mensual',  
+	`salario_base` numeric(18,4) not null, 
+	`modalidad` int not null comment 'Representa 0 Presencial 1 Teletrabajo',   
+	`dias_descanso` varchar(50) not null comment 'Es un texto de la siguiente manera 1,2,3,4,5,6,7',    
+	`created` datetime NOT NULL,
+	`updated` datetime NOT NULL,
+	`creator_user` bigint(20) NOT NULL,
+	`updater_user` bigint(20) NOT NULL,    
+	primary key(`id`),
+    constraint `FK_Sociedad_DatosLaborales` foreign key (`sociedad_id`) references `Sociedad` (`id`)
+    on update cascade on delete restrict,
+    constraint `FK_Sede_DatosLaborales` foreign key (`sede_id`) references `Sede` (`id`)
+    on update cascade on delete restrict,
+    constraint `FK_Departamento_DatosLaborales` foreign key (`departamento_id`) references `Departamentos` (`id`)
+    on update cascade on delete restrict,    
+    constraint `FK_Grupo_DatosLaborales` foreign key (`grupo_id`) references `GruposEmpleado` (`id`)
+    on update cascade on delete restrict,    
+    constraint `FK_Cargo_DatosLaborales` foreign key (`cargo_id`) references `Cargos` (`id`)
+    on update cascade on delete restrict,    
+    constraint `FK_Usuario_DatosLaborales` foreign key (`user_id`) references `Usuario` (`id`)
+    on update cascade on delete restrict        
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Tabla de datos  laborales del usuario';
 
 
--- CargosUsuario
-CREATE TABLE `CargosUsuario` (
-  `id` bigint(20) NOT NULL AUTO_INCREMENT,
-  `sociedad_id` bigint(20) DEFAULT NULL,
-  `sede_id` bigint(20) DEFAULT NULL,  
-  `user_id` bigint(20) DEFAULT NULL,
-  `cargo_id` bigint(20) DEFAULT NULL,
-  `created` datetime NOT NULL,
-  `updated` datetime NOT NULL,
-  `creator_user` bigint(20) NOT NULL,
-  `updater_user` bigint(20) NOT NULL,
-  PRIMARY KEY (`id`),
-  CONSTRAINT `FK_Cargos_CargosUsuario` FOREIGN KEY (`cargo_id`) REFERENCES `Cargos` (`id`) ON UPDATE CASCADE,
-  CONSTRAINT `FK_Sociedad_CargosUsuarios` FOREIGN KEY (`sociedad_id`) REFERENCES `Sociedad` (`id`) ON UPDATE CASCADE,
-  CONSTRAINT `FK_Usuario_CargosUsuario` FOREIGN KEY (`user_id`) REFERENCES `Usuario` (`id`) ON UPDATE CASCADE,
-  CONSTRAINT `FK_Sede_CargosUsuario` FOREIGN KEY (`sede_id`) REFERENCES `Sede` (`id`) ON UPDATE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Tabla de datos  cargos del usuario';
+CREATE TABLE `HistoricoDatosLaborales` (
+	`id` bigint NOT NULL AUTO_INCREMENT,
+	`datos_laborales_id` bigint not null,
+	`sociedad_id` bigint not null,    
+	`sede_id` bigint not null,
+	`departamento_id` bigint not null,      
+	`grupo_id` bigint not null,
+	`cargo_id` bigint not null,    
+	`user_id` bigint NOT NULL,
+	`tipo_contrato` int NOT NULL,  
+	`termino_contrato` int NOT NULL,
+	`fecha_inicio` date NOT NULL,
+	`fecha_fin` date NULL, 
+	`periodo_salario` int not null comment 'Representa cual es el periodo en dias de calculo de nomina 1 Quincenal 2 Mensual',  
+	`salario_base` numeric(18,4) not null, 
+	`modalidad` int not null comment 'Representa 0 Presencial 1 Teletrabajo',   
+	`dias_descanso` varchar(50) not null comment 'Es un texto de la siguiente manera 1,2,3,4,5,6,7',  
+	`created` datetime NOT NULL,
+	`updated` datetime NOT NULL,
+	`creator_user` bigint(20) NOT NULL,
+	`updater_user` bigint(20) NOT NULL,    
+	`fecha_registro` datetime NOT NULL,
+    `observaciones` text NOT NULL,
+	primary key(`id`)      
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Tabla de Historico de datos  laborales del usuario';
+
+-- -----------------------------------------------
+-- datos de pago
+CREATE TABLE `DatosPago` (
+	`id` bigint NOT NULL AUTO_INCREMENT,
+	`user_id` bigint NOT NULL,
+	`medio` int NOT NULL comment '1 Transfernecia, 2 Cheque, 3 contado',
+	`banco_id` bigint NULL,    
+	`tipo_cuenta` int NULL comment '1 Corriente 2 Ahorro',    
+	`created` datetime NOT NULL,
+	`updated` datetime NOT NULL,
+	`creator_user` bigint(20) NOT NULL,
+	`updater_user` bigint(20) NOT NULL, 
+	primary key(`id`),    
+    constraint `FK_Usuario_DatosPago` foreign key (`user_id`) references `Usuario` (`id`)
+    on update cascade on delete restrict        
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Tabla de datos  de pago  del usuario';
+
+-- historico de datos de pago
+CREATE TABLE `HistoricoDatosPago` (
+	`id` bigint NOT NULL AUTO_INCREMENT,
+	`datos_pago_id` bigint NOT NULL,    
+	`user_id` bigint NOT NULL,
+	`medio` int NOT NULL comment '1 Transferencia, 2 Cheque, 3 Contado',
+	`banco_id` bigint NULL,    
+	`tipo_cuenta` int NULL comment '1 Corriente 2 Ahorro',    
+	`created` datetime NOT NULL,
+	`updated` datetime NOT NULL,
+	`creator_user` bigint(20) NOT NULL,
+	`updater_user` bigint(20) NOT NULL, 
+	`fecha_registro` datetime NOT NULL,
+    `observaciones` text NOT NULL,    
+	primary key(`id`)     
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Tabla de Historico de datos  de pago  del usuario';
+
+
+
+
 
 CREATE TABLE `Periodos` (
 	`id` bigint NOT NULL AUTO_INCREMENT,
@@ -1415,6 +1563,7 @@ insert into `HistoricoPeriodos`values ('1','1','2020','1','Enero-2020','','0','0
 )  ENGINE=INNODB DEFAULT CHARSET=UTF8 comment 'Tabla de Centros de costos, basicamente usado para conectarse a los ERP';
 
 
+
 -- TiposPrestamos 
 CREATE TABLE `TiposPrestamos` (
 	`id` bigint auto_increment NOT NULL,
@@ -1423,10 +1572,47 @@ CREATE TABLE `TiposPrestamos` (
 	`cuenta` varchar(30)  NULL,
 	`CCAF` boolean DEFAULT 0 NOT NULL,
 	`caja_compensacion_id` bigint NULL,-- esta columna se relaciona con las cajas de compensacion si y solo si la cuenta es CCAF
+	`created` datetime NOT NULL COMMENT 'fecha en que fue creado el registro',
+	`updated` datetime NOT NULL COMMENT 'fecha en que fue actualizado el registro',
+	`creator_user` bigint(20) NOT NULL COMMENT 'usuario que creó el parametro',
+	`updater_user` bigint(20) NOT NULL COMMENT 'usuario que actualizó el parametro',
 	PRIMARY KEY (`id`),
     constraint `FK_Sociedad_TiposPrestamos` foreign key (`sociedad_id`) references `Sociedad` (`id`) 
     on  update cascade on delete restrict         
 ) ENGINE=INNODB DEFAULT CHARSET=UTF8 comment 'Tabla de tipos de prestamos';
+
+/*
+IdTipoPrestamo int IDENTITY(1,1) NOT NULL,
+TipoPrestamo nvarchar(150) COLLATE Modern_Spanish_CI_AS NOT NULL,
+Cuenta nvarchar(30) COLLATE Modern_Spanish_CI_AS NULL,
+EsDeCCAF bit DEFAULT 0 NOT NULL,
+IdCajaCompensacion int NULL,
+*/
+
+insert into `TiposPrestamos` values ('1','1','Empresa','11080003','0',null,'2024-02-21 10:00','2024-02-21 10:00','1','1');
+insert into `TiposPrestamos` values ('2','1','CCAF','21050003','1',null,'2024-02-21 10:00','2024-02-21 10:00','1','1');
+
+
+-- Historico TiposPrestamos 
+CREATE TABLE `HistoricoTiposPrestamos` (
+	`id` bigint auto_increment NOT NULL,
+	`tipo_prestamo_id` bigint NOT NULL,    
+	`sociedad_id` bigint  NOT NULL,     
+	`descripcion` varchar(150)  NOT NULL,
+	`cuenta` varchar(30)  NULL,
+	`CCAF` boolean DEFAULT 0 NOT NULL,
+	`caja_compensacion_id` bigint NULL,-- esta columna se relaciona con las cajas de compensacion si y solo si la cuenta es CCAF
+	`created` datetime NOT NULL COMMENT 'fecha en que fue creado el registro',
+	`updated` datetime NOT NULL COMMENT 'fecha en que fue actualizado el registro',
+	`creator_user` bigint(20) NOT NULL COMMENT 'usuario que creó el parametro',
+	`updater_user` bigint(20) NOT NULL COMMENT 'usuario que actualizó el parametro',
+	`fecha_registro` datetime NOT NULL,
+	`observaciones` text DEFAULT NULL,    
+	PRIMARY KEY (`id`)
+) ENGINE=INNODB DEFAULT CHARSET=UTF8 comment 'Tabla de datos historicos de tipos de prestamos';
+
+
+
 
 
 -- Alertas

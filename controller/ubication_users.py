@@ -125,7 +125,7 @@ class ubicationUserController():
             self.db.commit()
 
             #creamos el registro historico de ubicacion del usuario
-            self.create_historico_ubication_user(newUbicationUser,"Se creó la data de ubicacion del usuario")
+            ubicationUserController.create_historico_ubication_user(self,newUbicationUser,"Se creó la data de ubicacion del usuario")
 
             newUbicationUserId=newUbicationUser.id
             return ({"result":"1","estado":"creado","newUbicationUserId":newUbicationUserId})

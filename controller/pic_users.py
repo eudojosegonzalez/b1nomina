@@ -189,7 +189,7 @@ class PicUserController():
     def get_pic_user(self, fileId):
 
         # verificamos si existe el registro
-        nRecordFileUser= self.db.query(FotosUsuariosModel).filter(FotosUsuariosModel.id==fileId).count()
+        nRecordFileUser= self.db.query(FotosUsuariosModel).filter(FotosUsuariosModel.user_id==fileId).count()
 
         main_file = os.path.abspath(__file__)
         app_dir = os.path.dirname(main_file)+"/.."
@@ -207,7 +207,7 @@ class PicUserController():
         '''
         if (nRecordFileUser>0):
             # Obtener la dirección del servidor.
-            result= self.db.query(FotosUsuariosModel).filter(FotosUsuariosModel.id==fileId).first()
+            result= self.db.query(FotosUsuariosModel).filter(FotosUsuariosModel.user_id==fileId).first()
 
             resultado={
                 "id":result.id,
@@ -229,14 +229,26 @@ class PicUserController():
 
     # esta función permite la eliminación de una foto de usuario
     # @param picId: Id que representa la clave primaria de la foto que se eliminará
-    def delete_pic_user(picId:int):
-        # verificamos la existebcia del ID
+    def delete_pic_user(self,userId:int):
+        # buscamos el registro
+        nRecordFileUser = self.db.query(FotosUsuariosModel).filter(FotosUsuariosModel.user_id==userId).count()
 
-        # insertamos en el registro historico de fotos
+        main_file = os.path.abspath(__file__)
+        app_dir = os.path.dirname(main_file)+"/.."        
 
-        # eliminamos fisicamente el archivo
+        if (nRecordFileUser > 0):
+            try:
+                filePicExists= self.db.query(FotosUsuariosModel).filter(FotosUsuariosModel.user_id==userId).first()
 
-        #eliminamos el registro de la BD
+                ruta_archivo=app_dir+"/"+filePicExists.url
 
-        # devolvemos los resultados
-        return ({"result":"1","estado":"Archivo eliminado" })  
+                self.db.delete(filePicExists)
+                self.db.commit()
+
+                os.remove(ruta_archivo)
+
+                return ({"result":"1","estado":"Archivo eliminado"})                
+            except OSError as error:
+                return({"result":"-3","estado":f"Error al eliminar el archivo: {error} ruta {ruta_archivo}"})
+        else:
+            return ({"result":"-1","estado":"Archivo no encontrado" })  

@@ -73,7 +73,17 @@ from models.grupos_empleados import GruposEmpleado as GruposEmpleadoModel
 from models.categorias_configuracion import CategoriasConfiguracion as CategoriasConfiguracionModel
 from models.configuracion import Configuraciones as ConfiguracionesModel
 from models.view_general_user_sdg import ViewGeneralUserSDG  as ViewGeneralUserSDGModel
+from models.view_general_user_sdg2 import ViewGeneralUserSDG2  as ViewGeneralUserSDG2Model
+from models.view_general_user2 import ViewGeneralUser2  as ViewGeneralUser2Model
 from models.cuentas_contable import CuentasContables as CuentasContablesModel
+from models.tipos_prestamos import TiposPrestamos as TiposPrestamosModel
+from models.bancos import Bancos as BancosModel
+from models.estado_civil import EstadoCivil as EstadoCivilModel
+from models.nacionalidad import Nacionalidad as NacionalidadModel
+from models.cargo import Cargos as CargosModel
+from models.regiones import Regiones as RegionesModel
+from models.comunas import Comunas as ComunasModel
+from models.nivel_estudio import NivelEstudio as NivelEstudioModel
 
 
 #importamos el esquema de datos de Sociedades
@@ -332,6 +342,7 @@ class sociedadesController():
         result=consulta.all()
         return (result)    
     
+
     # metodo para consultar todas las categorias de configiracion de una sociedad
     # @params page: pagina de los datos que se mostrará
     # @params records: cantidad de registros por página
@@ -368,52 +379,36 @@ class sociedadesController():
         return (result)    
 
 
-
     # metodo para consultar todas los empleados por Id de socidad
     # @params page: pagina de los datos que se mostrará
     # @params records: cantidad de registros por página
     def list_sociedad_empleados(self, idSociedad):
-        if (idSociedad == 1):
-            consulta = self.db.query(UsuarioModel).filter(UsuarioModel.id < 150)
-        elif (idSociedad == 2):
-            consulta = self.db.query(UsuarioModel).filter(UsuarioModel.id >= 150)    
-        else:
-            consulta = self.db.query(UsuarioModel).filter(UsuarioModel.id >= 1500) 
-
+        consulta = self.db.query(ViewGeneralUser2Model).filter(ViewGeneralUser2Model.sociedad_id == idSociedad)
 
         result=consulta.all()
-        '''
-        id = Column(BIGINT, primary_key=True, autoincrement=True)
-        rut = Column(VARCHAR(100), nullable=False) #VARCHAR(100) NOT NULL,
-        rut_provisorio  = Column(VARCHAR(100), nullable=True) #VARCHAR(100) NULL,
-        nombres = Column (VARCHAR(100), nullable=False) #VARCHAR(100) NOT NULL,
-        apellido_paterno  = Column (VARCHAR(100), nullable=False) #paterno VARCHAR(100) NOT NULL,
-        apellido_materno = Column (VARCHAR(100),nullable=True )  #VARCHAR(100) NULL,
-        fecha_nacimiento = Column(DATE, nullable=False) #DATE NOT NULL,
-        sexo_id = Column(BIGINT, nullable=False) #BIGINT NOT NULL,
-        estado_civil_id = Column(BIGINT, nullable=False) #BIGINT NOT NULL,    
-        nacionalidad_id = Column(BIGINT, nullable=False) #BIGINT NOT NULL, 
-        username = Column(VARCHAR(250), nullable=False) #varchar(250) NOT NULL,    
-        password = Column(VARCHAR(250), nullable=False) #NOT NULL,  
-        activo = Column(Boolean, nullable=False) #boolean NOT NULL comment 'campo para activar o no al usuario 0 Inactivo 1 Activo',           
-        created = Column (DateTime, nullable=False) #datetime NOT NULL,    
-        updated = Column (DateTime, nullable=False)  #datetime NOT NULL,
-        creator_user= Column(BIGINT, nullable=False) #user BIGINT NOT NULL,     
-        updater_user = Column(BIGINT, nullable=False) #user BIGINT NOT NULL,         
-        '''
+
         data = [{
                 "id": row.id,
-                "nombres": row.nombres,
+                "nombre": row.nombres,
                 "apellido_paterno": row.apellido_paterno,
                 "apellido_materno": row.apellido_materno,
                 "activo": row.activo,
-                "cargo": "Cargo",
-                "sueldo":str( random.randint(4500,  10000)),                
+                "cargo": row.cargo,
+                "sueldo":row.sueldo,                
                 "rut": row.rut
             } for row in result]
 
         return (data)   
     
+
+    # metodo para consultar todas las TiposPrestamoss
+    # @params page: pagina de los datos que se mostrará
+    # @params records: cantidad de registros por página
+    def list_tipos_prestamos_sociedad(self,idSociedad):
+        consulta = self.db.query(TiposPrestamosModel).filter(TiposPrestamosModel.sociedad_id==idSociedad)
+        result=consulta.all()
+        return (result)
+        
 
     # metodo para ejecutar búsquedas en los usuarios usando una cadena,sede,departamento y grupo
     # @params finding: contenido json que se buscará entre los campos de la vista de usuarios
@@ -479,7 +474,7 @@ class sociedadesController():
 
                 data = [{
                         "id": row.id,
-                        "nombres": row.nombres,
+                        "nombre": row.nombres,
                         "apellido_paterno": row.apellido_paterno,
                         "apellido_materno": row.apellido_materno,
                         "activo": row.activo,
@@ -497,14 +492,97 @@ class sociedadesController():
         except ValueError as e:
                 # ocurrio un error y devolvemos el estado
                 return( {"result":"-3","error": str(e)})
+            
 
+    # metodo para ejecutar búsquedas en los usuarios usando una cadena,sede,departamento y grupo
+    # @params finding: contenido json que se buscará entre los campos de la vista de usuarios
+    # @params page: pagina de los datos que se mostrará
+    # @params records: cantidad de registros por página
+    def search_users_sdg2(self,id,sede_id,departamento_id,grupo_id):
+        '''
+            Posibles campos de busqueda
+            ----------------------------------------
+            sede_id,
+            departamento_id,
+            grupo_id
+        '''
+
+        try:
+
+            # solo se filtro por sede
+            if ((sede_id!=0) and (departamento_id==0) and (grupo_id==0)):
+                consulta=self.db.query(ViewGeneralUserSDG2Model).filter(ViewGeneralUserSDG2Model.sociedad_id==id).\
+                filter(ViewGeneralUserSDG2Model.sede_id==sede_id)
+
+            # se aplico filtro por departamento
+            if ((sede_id==0) and (departamento_id!=0) and (grupo_id==0)):   
+                 consulta=self.db.query(ViewGeneralUserSDG2Model).filter(ViewGeneralUserSDG2Model.sociedad_id==id).\
+                    filter(ViewGeneralUserSDG2Model.departamento_id==departamento_id)
+                 
+            # se aplico filtro por grupo
+            if ((sede_id==0) and (departamento_id==0) and (grupo_id!=0)):   
+                 consulta=self.db.query(ViewGeneralUserSDG2Model).filter(ViewGeneralUserSDG2Model.sociedad_id==id).\
+                    filter(ViewGeneralUserSDG2Model.grupo_empleados_id==grupo_id)                 
+                                 
+            
+            # se aplico filtro por sede y departamento
+            if ((sede_id!=0) and (departamento_id!=0) and (grupo_id==0)):   
+                 consulta=self.db.query(ViewGeneralUserSDG2Model).filter(ViewGeneralUserSDG2Model.sociedad_id==id).\
+                    filter(ViewGeneralUserSDG2Model.sede_id==sede_id).\
+                    filter(ViewGeneralUserSDG2Model.departamento_id==departamento_id)
+
+            # se aplico filtro por sede y grupo
+            if ((sede_id!=0) and (departamento_id!=0) and (grupo_id==0)):   
+                 consulta=self.db.query(ViewGeneralUserSDG2Model).filter(ViewGeneralUserSDG2Model.sociedad_id==id).\
+                    filter(ViewGeneralUserSDG2Model.sede_id==sede_id).\
+                    filter(ViewGeneralUserSDG2Model.grupo_empleados_id==grupo_id)
+                 
+            # se aplico filtro por departamnto y grupo
+            if ((sede_id==0) and (departamento_id!=0) and (grupo_id!=0)):   
+                 consulta=self.db.query(ViewGeneralUserSDG2Model).filter(ViewGeneralUserSDG2Model.sociedad_id==id).\
+                    filter(ViewGeneralUserSDG2Model.departamento_id==departamento_id).\
+                    filter(ViewGeneralUserSDG2Model.grupo_empleados_id==grupo_id)                 
+
+            # se aplicao filtro por sede, departamento y grupo
+            if ((sede_id!=0) and (departamento_id!=0) and (grupo_id!=0)):   
+                 consulta=self.db.query(ViewGeneralUserSDG2Model).filter(ViewGeneralUserSDG2Model.sociedad_id==id).\
+                    filter(ViewGeneralUserSDG2Model.sede_id==sede_id).\
+                    filter(ViewGeneralUserSDG2Model.departamento_id==departamento_id).\
+                    filter(ViewGeneralUserSDG2Model.grupo_empleados_id==grupo_id) 
+                 
+            # contamnos los registros
+            nrecord=consulta.count()
+
+            if (nrecord > 0):
+                result=consulta.all()
+
+                data = [{
+                        "id": row.id,
+                        "nombre": row.nombres,
+                        "apellido_paterno": row.apellido_paterno,
+                        "apellido_materno": row.apellido_materno,
+                        "activo": row.activo,
+                        "cargo": row.cargo,
+                        "sueldo":row.sueldo,                
+                        "rut": row.rut
+                    } for row in result]
+
+                   
+                return ({"result":"1","estado":"Se encontraron registros coincidentes con los creiterios de búsqueda","data":data})
+            else:
+                # los filtros no arrojaron resultados
+                 return ({"result":"-1","estado":"No record found"})
+            
+        except ValueError as e:
+                # ocurrio un error y devolvemos el estado
+                return( {"result":"-3","error": str(e)})            
 
 
     # metodo para listar los datos historicos  de una sociedad
     # @params id: Id de la sociedad que se esta consultando
     def list_history_sociedades(self, page:int, records: int, id:int):
 
-        # buscamos si exite el banco
+        # buscamos si exite la sociendad
         nRecord = self.db.query(HistoricoSociedadModel).filter(HistoricoSociedadModel.sociedad_id == id).count()
         
         if (nRecord == 0):
@@ -541,3 +619,200 @@ class sociedadesController():
         }
 
         return ({"result":"1","estado":"Datos encontrados","data":data})  
+
+
+    # metodo para listar los datos historicos  de una sociedad
+    # @params id: Id de la sociedad que se esta consultando
+    def list_history_sociedades(self, page:int, records: int, id:int):
+
+        # buscamos si exite la sociendad
+        nRecord = self.db.query(HistoricoSociedadModel).filter(HistoricoSociedadModel.sociedad_id == id).count()
+        
+        if (nRecord == 0):
+            # el no se consiguieron datos historicos de la sociedad
+            return ({"result":"-2","estado":"No record found"})
+        else:
+            # existen los datos historicos de la sociedad
+            try:
+                # ejecutamos la consulta
+                consulta = self.db.query(HistoricoSociedadModel).filter(HistoricoSociedadModel.sociedad_id == id)
+                consulta = consulta.limit(records)
+                consulta = consulta.offset(records * (page - 1))
+                listHistorySociedad=consulta.all()
+               
+                # se actualizó el registro devolvemos el registro encontrado
+                return ({"result":"1","estado":"Se consiguieron los datos historicos de la sociedad ","data": listHistorySociedad})
+            except ValueError as e:
+                # ocurrió un error devolvemos el error
+                return( {"result":"-1","error": str(e)})     
+
+
+    # esta funcion permite agrupar todos los parmaetros que serán ncesarios en la creación del usuarios
+    def get_parametros_crear_usuario(self, idSociedad):
+
+        #consultamos todos los bancos
+        try:
+            # ejecutamos la consulta
+            result = self.db.query(BancosModel).all()
+            Bancos = [{
+                    "id": row.id,
+                    "nombre": row.nombre
+
+                } for row in result]                
+        except ValueError as e:
+            # ocurrió un error devolvemos el error
+            return( {"result":"-1","error": str(e)})             
+        
+        #consultamos todos las sedes por idSociedad
+        try:
+            # ejecutamos la consulta
+            result = self.db.query(SedeModel).filter(SedeModel.sociedad_id==idSociedad).all()
+            Sedes = [{
+                    "id": row.id,
+                    "nombre": row.nombre
+
+                } for row in result]                
+        except ValueError as e:
+            # ocurrió un error devolvemos el error
+            return( {"result":"-1","error": str(e)})             
+        
+        #consultamos todos los departamentos por idSociedad
+        try:
+            # ejecutamos la consulta
+            result = self.db.query(DepartamentosModel).filter(DepartamentosModel.sociedad_id==idSociedad).all()
+            Departamentos = [{
+                    "id": row.id,
+                    "nombre": row.nombre
+
+                } for row in result]                
+        except ValueError as e:
+            # ocurrió un error devolvemos el error
+            return( {"result":"-1","error": str(e)})   
+        
+          
+        #consultamos todos los grupos por idSociedad
+        try:
+            # ejecutamos la consulta
+            result = self.db.query(GruposEmpleadoModel).filter(GruposEmpleadoModel.sociedad_id==idSociedad).all()
+            Grupos = [{
+                    "id": row.id,
+                    "nombre": row.nombre
+
+                } for row in result]                
+        except ValueError as e:
+            # ocurrió un error devolvemos el error
+            return( {"result":"-1","error": str(e)})             
+              
+
+        #consultamos todos los estado civiles
+        try:
+            # ejecutamos la consulta
+            result = self.db.query(EstadoCivilModel).all()
+            EstadoCivil = [{
+                    "id": row.id,
+                    "nombre": row.descripcion
+
+                } for row in result]                
+        except ValueError as e:
+            # ocurrió un error devolvemos el error
+            return( {"result":"-1","error": str(e)}) 
+        
+        
+        #consultamos las nacionalidades
+        try:
+            # ejecutamos la consulta
+            result = self.db.query(NacionalidadModel).all()
+            Nacionalidad = [{
+                    "id": row.id,
+                    "nombre": row.Nacionalidad
+
+                } for row in result]                
+        except ValueError as e:
+            # ocurrió un error devolvemos el error
+            return( {"result":"-1","error": str(e)})         
+        
+        
+        #consultamos los cargos
+        try:
+            # ejecutamos la consulta
+            result = self.db.query(CargosModel).filter(CargosModel.sociedad_id == idSociedad).all()
+            Cargos = [{
+                    "id": row.id,
+                    "nombre": row.nombre
+
+                } for row in result]                
+        except ValueError as e:
+            # ocurrió un error devolvemos el error
+            return( {"result":"-1","error": str(e)}) 
+        
+        #periodo salario
+        tiposSalario=[{"id":"1","nombre":"Quincenal"},{"id":"2","nombre":"Mensual"},{"id":"3","nombre":"A término"}]         
+        
+        #Termino Contrato
+        TerminoContrato=[{"id":"0","nombre":"Indefinido"},{"id":"1","nombre":"Definido"}]   
+        
+        #Tipo Contrato
+        TipoContrato=[{"id":"1","nombre":"Empleado"},{"id":"2","nombre":"Pasante"}]           
+        
+        #buscamos las regiones
+        try:
+            # ejecutamos la consulta
+            result = self.db.query(RegionesModel).all()
+            Regiones = [{
+                    "id": row.id,
+                    "nombre": row.nombre
+
+                } for row in result]                
+        except ValueError as e:
+            # ocurrió un error devolvemos el error
+            return( {"result":"-1","error": str(e)})
+                
+        #buscamos las Comuna
+        try:
+            # ejecutamos la consulta
+            result = self.db.query(ComunasModel).all()
+            Localidad = [{
+                    "id": row.id,
+                    "nombre": row.nombre,
+                    "idregion":row.region_id
+
+                } for row in result]                
+        except ValueError as e:
+            # ocurrió un error devolvemos el error
+            return( {"result":"-1","error": str(e)})
+        
+        #buscamos los Niveles de Estudio
+        try:
+            # ejecutamos la consulta
+            result = self.db.query(NivelEstudioModel).all()
+            NivelesEstudio = [{
+                    "id": row.id,
+                    "nombre": row.descripcion,
+                } for row in result]                
+        except ValueError as e:
+            # ocurrió un error devolvemos el error
+            return( {"result":"-1","error": str(e)})        
+
+        unidadesSueldo=[
+                {"id":"1","nombre":"$"},
+                {"id":"2","nombre":"UF"}
+                ]
+        
+        data={
+            "bancos" : Bancos,
+            "sede":Sedes,
+            "departamentos":Departamentos,
+            "grupos":Grupos,
+            "estadocivil":EstadoCivil,
+            "nacionalidad":Nacionalidad,
+            "cargos":Cargos,
+            "tiposalario":tiposSalario,
+            "regiones":Regiones,
+            "localidad":Localidad,
+            "terminocontrato":TerminoContrato,
+            "tipocontrato":TipoContrato,
+            "nivelestudio":NivelesEstudio,
+            "unidadessueldo":unidadesSueldo
+        }
+
+        return ({"result":"1","estado":"Datos encontrados","parametros":data}) 

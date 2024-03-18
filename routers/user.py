@@ -13,6 +13,7 @@ from fastapi.encoders import jsonable_encoder
 #from fastapi import Path,Query, Depends
 from fastapi.responses import JSONResponse
 from fastapi import  Request
+from fastapi import File, UploadFile
 
 
 from datetime import datetime,timedelta
@@ -45,7 +46,9 @@ from models.view_general_user import ViewGeneralUser
 #importamos el esquema de datos para utilizarlo como referencia de datos a la hora de capturar data
 from schemas.user import User
 from schemas.login import Login
-
+from schemas.preregistro_user import PreUser as PreUserSchema
+from schemas.preregistro_user2 import PreUser2 as PreUser2Schema
+from schemas.usuarios_grupo import UsuariosGruposEmpleado as UsuariosGruposEmpleadoSchema
 
 #from middleware.error_handler import ErrorHandler
 from middleware.jwt_bearer import JWTBearer
@@ -185,6 +188,214 @@ def validate(token : str = Body):
     
 
 # Funcion para crear los datos personles de un usuario
+@user_router.post ('/user/create_preuser',
+tags=['Usuarios'],
+dependencies=[Depends(JWTBearer())], 
+responses=
+    { 
+        201: {
+            "description": "Se creo el preregistro del usuario en el sistema",
+            "content": { 
+                "application/json":{
+                    "example":
+                        {
+                            "message":"Se creo el preregistro del usuario en el sistema",
+                            "newUserId":"1"
+                        }
+                    } 
+                }       
+            },
+        403: {
+            "description": "Forbiden",
+            "content": { 
+                "application/json":{ 
+                    "example":
+                        {
+                            "message":"Not authenticated"
+                        }
+                    } 
+                }       
+            },            
+        409: {
+            "description": "Este Username ya fue registrado en el sistema, no puede volver a insertarlo",
+            "content": { 
+                "application/json":{ 
+                    "example":
+                        {
+                            "message":"Este Username ya fue registrado en el sistema, no puede volver a insertarlo",
+                            "userId":"1",
+                             "userName":"anyUsername"
+                        }
+                    } 
+                }       
+            },
+        422: {
+            "description": "Este RUT ya fue registrado en el sistema, no puede volver a insertarlo",
+            "content": { 
+                "application/json":
+                    { "example":
+                        {
+                            "message":"Este RUT ya fue registrado en el sistema, no puede volver a insertarlo",
+                            "userId":"1",
+                            "rut":"123456789"
+                        }
+                    } 
+                }       
+            }, 
+        500: {
+            "description": "Su session ha expirado",
+            "content": { 
+                "application/json":
+                    { "example":
+                        {
+                            "message":"Su session ha expirado",
+                            "estado":"Signature has expired"
+                        }
+                    } 
+                }       
+            },              
+        520: {
+            "description": "Ocurrió un error que no pudo ser controlado",
+            "content": { 
+                "application/json":
+                    { "example":
+                        {
+                            "message":"Ocurrió un error que no pudo ser controlado",
+                            "estado":"System Error"
+                        }
+                    } 
+                }       
+            },                       
+
+
+    }
+)
+def create_preuser(preUsuario:PreUserSchema)->dict:
+    db = Session()
+    result=userController(db).create_pre_user(preUsuario)
+    # evaluamos el resultado
+    estado=result['result']
+
+    if (estado=="1") :
+        # se inserto el registro sin problemas
+        newUserId=result["newUserId"]
+        return JSONResponse (status_code=201,content={"message":"Se creo el usuario en el sistema","newUserId":newUserId})     
+    elif (estado=="-3"):
+        userExist=jsonable_encoder(result)
+        return JSONResponse (status_code=422,content={"message":"Este RUT ya fue registrado en el sistema, no puede volver a insertarlo","User":userExist})    
+    elif (estado=="-1"):
+        cadenaErrores=result["estado"]
+        return JSONResponse (status_code=521,content={"message":f"Error en los formatos de los datos, {cadenaErrores}","estado":cadenaErrores})       
+    else:
+        return JSONResponse (status_code=520,content={"message":"Ocurrió un error que no pudo ser controlado","estado":result})    
+
+
+
+# Funcion para crear los datos personles de un usuario Formulario 2
+@user_router.post ('/user/create_preuser2',
+tags=['Usuarios'],
+dependencies=[Depends(JWTBearer())], 
+responses=
+    { 
+        201: {
+            "description": "Se creo el preregistro del usuario en el sistema",
+            "content": { 
+                "application/json":{
+                    "example":
+                        {
+                            "message":"Se creo el preregistro del usuario en el sistema",
+                            "newUserId":"1"
+                        }
+                    } 
+                }       
+            },
+        403: {
+            "description": "Forbiden",
+            "content": { 
+                "application/json":{ 
+                    "example":
+                        {
+                            "message":"Not authenticated"
+                        }
+                    } 
+                }       
+            },            
+        409: {
+            "description": "Este Username ya fue registrado en el sistema, no puede volver a insertarlo",
+            "content": { 
+                "application/json":{ 
+                    "example":
+                        {
+                            "message":"Este Username ya fue registrado en el sistema, no puede volver a insertarlo",
+                            "userId":"1",
+                             "userName":"anyUsername"
+                        }
+                    } 
+                }       
+            },
+        422: {
+            "description": "Este RUT ya fue registrado en el sistema, no puede volver a insertarlo",
+            "content": { 
+                "application/json":
+                    { "example":
+                        {
+                            "message":"Este RUT ya fue registrado en el sistema, no puede volver a insertarlo",
+                            "userId":"1",
+                            "rut":"123456789"
+                        }
+                    } 
+                }       
+            }, 
+        500: {
+            "description": "Su session ha expirado",
+            "content": { 
+                "application/json":
+                    { "example":
+                        {
+                            "message":"Su session ha expirado",
+                            "estado":"Signature has expired"
+                        }
+                    } 
+                }       
+            },              
+        520: {
+            "description": "Ocurrió un error que no pudo ser controlado",
+            "content": { 
+                "application/json":
+                    { "example":
+                        {
+                            "message":"Ocurrió un error que no pudo ser controlado",
+                            "estado":"System Error"
+                        }
+                    } 
+                }       
+            },                       
+
+
+    }
+)
+def create_preuser2(preregistro_user2:PreUser2Schema, creatorUserId : int = Query (ge=1, le=os.getenv("MAX_ID_USERS")))->dict:
+    db = Session()
+    result=userController(db).create_pre_user2(preregistro_user2, creatorUserId)
+    # evaluamos el resultado
+    estado=result['result']
+
+    if (estado=="1") :
+        # se inserto el registro sin problemas
+        newUserId=result["newUserId"]
+        return JSONResponse (status_code=201,content={"message":"Se creo el usuario en el sistema","newUserId":newUserId})     
+    elif (estado=="-3"):
+        userExist=jsonable_encoder(result)
+        return JSONResponse (status_code=422,content={"message":"Este RUT ya fue registrado en el sistema, no puede volver a insertarlo","User":userExist})    
+    elif (estado=="-1"):
+        cadenaErrores=result["estado"]
+        return JSONResponse (status_code=521,content={"message":"Error en los formatos de los datos","estado":cadenaErrores})       
+    else:
+        return JSONResponse (status_code=520,content={"message":"Ocurrió un error que no pudo ser controlado","estado":result})  
+   
+
+
+# Funcion para crear los datos personles de un usuario
 @user_router.post ('/user/create_user',
 tags=['Usuarios'],
 dependencies=[Depends(JWTBearer())], 
@@ -262,14 +473,12 @@ responses=
                         }
                     } 
                 }       
-            },                       
-
-
+            },
     }
 )
-def create_user(usuario:User)->dict:
+def create_user(usuario:User,creatorUserId : int = Query (ge=1, le=os.getenv("MAX_ID_USERS")))->dict:
     db = Session()
-    result=userController(db).create_user(usuario)
+    result=userController(db).create_user(usuario,creatorUserId)
     # evaluamos el resultado
     estado=result['result']
 
@@ -286,15 +495,16 @@ def create_user(usuario:User)->dict:
         userId=result["userId"]
         rut=result["rut"]
         return JSONResponse (status_code=422,content={"message":"Este RUT ya fue registrado en el sistema, no puede volver a insertarlo","userId":userId,"rut":rut})     
-
     else:
-        return JSONResponse (status_code=520,content={"message":"Ocurrió un error que no pudo ser controlado","estado":result})             
+        codigo=result['result']
+        cadenaError=result['cadenaError']
+        return JSONResponse(status_code=520,content={"message":f"Ocurrió un error que no pudo ser controlado {codigo} {cadenaError} "})              
 
 
 # Funcion para crear los datos personles de usuarios desde un archivo
 @user_router.post ('/user/bulk_load_users',
 tags=['Usuarios'],
-dependencies=[Depends(JWTBearer())], 
+dependencies=[Depends(JWTBearer())],  
 responses=
     { 
         201: {
@@ -362,47 +572,41 @@ responses=
                     } 
                 }       
             },                       
-
-
-    })
-def bulk_load_users():
-    '''    db = Session()
-    result=userController(db).create_user(usuario)
+    }
+)
+async def bulk_load_users(sociedadId: int , creatorUserId : int = Query (ge=1, le=os.getenv("MAX_ID_USERS")),File : UploadFile=File()):
+    db = Session()
+    result = await userController(db).upload_massive_user(sociedadId,creatorUserId,File)
     # evaluamos el resultado
     estado=result['result']
 
     if (estado=="1") :
         # se inserto el registro sin problemas
-        newUserId=result["newUserId"]
-        return JSONResponse (status_code=201,content={"message":"Se creo el usuario en el sistema","newUserId":newUserId})     
-    elif  (estado=="-2"):
-        # el username ya existe no puede volver a insertarlo
-        userId=result["userId"]
-        userName=result["userName"]
-        return JSONResponse (status_code=409,content={"message":"Este Username ya fue registrado en el sistema, no puede volver a insertarlo","userId":userId,"userName":userName})     
-    elif (estado=="-3"):
-        userId=result["userId"]
-        rut=result["rut"]
-        return JSONResponse (status_code=422,content={"message":"Este RUT ya fue registrado en el sistema, no puede volver a insertarlo","userId":userId,"rut":rut})     
-
+        fileResult=result['fileResult']
+        return JSONResponse (status_code=201,content={"message":"Se proceso una importacion masiva en el sistema","fileResult":fileResult}) 
+    elif (estado=="-2"):
+        return JSONResponse (status_code=522,content={"message":"Archivo no procesado"})                  
+    elif (estado=="-4"):
+        return JSONResponse (status_code=521,content={"message":"Error en el formato de los datos","estado":result})  
     else:
-        return JSONResponse (status_code=501,content={"message":"Ocurrió un error que no pudo ser controlado","estado":result})       '''
-    return JSONResponse (status_code=200,content={"message":"En desarrollo"})     
+        return JSONResponse (status_code=520,content={"message":"Ocurrió un error que no pudo ser controlado","estado":result})  
 
 
-# Funcion para eliminar archivos al profile de un usuario
-@user_router.post ('/user/{id}/associate_user_company',
+
+
+# Funcion para asosciar un usuario a un departamento
+@user_router.post ('/user/asociar_usuario_sociedad',
 tags=['Usuarios'],
 dependencies=[Depends(JWTBearer())], 
 responses=
     { 
         201: {
-            "description": "Se asoció un usuario a una sociedad",
+            "description": "Se asoció un usuario a departamento",
             "content": { 
                 "application/json":{
                     "example":
                         {
-                            "message":"Se asoció un usuario a una sociedad",
+                            "message":"Se asoció un usuario a un departamento",
                             "newUserId":"1"
                         }
                     } 
@@ -431,7 +635,7 @@ responses=
                     } 
                 }       
             },                        
-          501: {
+        501: {
             "description": "Ocurrió un error que no pudo ser controlado",
             "content": { 
                 "application/json":
@@ -442,12 +646,177 @@ responses=
                         }
                     } 
                 }       
-            },                       
+        },                       
+    }
+)
+def associate_user_society(userGroup:UsuariosGruposEmpleadoSchema,creatorUserId : int = Query (ge=1, le=os.getenv("MAX_ID_USERS")))->dict:
+    db = Session()
+    result=userController(db).asignate_user_society(userGroup, creatorUserId )
+    # evaluamos el resultado
+    estado=result['result']    
+    
+    if (estado=="1") :
+        # se inserto el registro sin problemas
+        return JSONResponse (status_code=201,content={"message":"Se asoció el usuario al grupo"})     
+    elif  (estado=="-2"):
+        # el usuario ya esta asociado a otro grupo, no puede volver a crearlo
+        data=result['data']
+        return JSONResponse (status_code=521,content={"message":"Este usuario esta asociado a otro grupo, no puede volver a crearlo","UsuarioGrupo":jsonable_encoder(data)})     
+    else:
+        codigo=result['result']
+        cadenaError=result['cadenaError']
+        return JSONResponse(status_code=520,content={"message":f"Ocurrió un error que no pudo ser controlado {codigo} {cadenaError} "})              
 
 
-    })
-def associate_user_company():
-    return JSONResponse (status_code=200,content={"message":"En desarrollo"}) 
+
+
+# Funcion para asosciar un usuario a un departamento
+@user_router.post ('/user/asociar_usuario_departamento',
+tags=['Usuarios'],
+dependencies=[Depends(JWTBearer())], 
+responses=
+    { 
+        201: {
+            "description": "Se asoció un usuario a departamento",
+            "content": { 
+                "application/json":{
+                    "example":
+                        {
+                            "message":"Se asoció un usuario a un departamento",
+                            "newUserId":"1"
+                        }
+                    } 
+                }       
+            },
+        403: {
+            "description": "Forbiden",
+            "content": { 
+                "application/json":{ 
+                    "example":
+                        {
+                            "message":"Not authenticated"
+                        }
+                    } 
+                }       
+            },  
+        500: {
+            "description": "Su session ha expirado",
+            "content": { 
+                "application/json":
+                    { "example":
+                        {
+                            "message":"Su session ha expirado",
+                            "estado":"Signature has expired"
+                        }
+                    } 
+                }       
+            },                        
+        501: {
+            "description": "Ocurrió un error que no pudo ser controlado",
+            "content": { 
+                "application/json":
+                    { "example":
+                        {
+                            "message":"Ocurrió un error que no pudo ser controlado",
+                            "estado":"System Error"
+                        }
+                    } 
+                }       
+        },                       
+    }
+)
+def associate_user_departament(userGroup:UsuariosGruposEmpleadoSchema,creatorUserId : int = Query (ge=1, le=os.getenv("MAX_ID_USERS")))->dict:
+    db = Session()
+    result=userController(db).asignate_user_departament(userGroup, creatorUserId )
+    # evaluamos el resultado
+    estado=result['result']    
+    
+    if (estado=="1") :
+        # se inserto el registro sin problemas
+        return JSONResponse (status_code=201,content={"message":"Se asoció el usuario al grupo"})     
+    elif  (estado=="-2"):
+        # el usuario ya esta asociado a otro grupo, no puede volver a crearlo
+        data=result['data']
+        return JSONResponse (status_code=521,content={"message":"Este usuario esta asociado a otro grupo, no puede volver a crearlo","UsuarioGrupo":jsonable_encoder(data)})     
+    else:
+        codigo=result['result']
+        cadenaError=result['cadenaError']
+        return JSONResponse(status_code=520,content={"message":f"Ocurrió un error que no pudo ser controlado {codigo} {cadenaError} "})              
+
+
+# Funcion para asosciar un usuario a un grupo
+@user_router.post ('/user/asociar_usuario_grupo',
+tags=['Usuarios'],
+dependencies=[Depends(JWTBearer())], 
+responses=
+    { 
+        201: {
+            "description": "Se asoció un usuario a grupo",
+            "content": { 
+                "application/json":{
+                    "example":
+                        {
+                            "message":"Se asoció un usuario a un grupo",
+                            "newUserId":"1"
+                        }
+                    } 
+                }       
+            },
+        403: {
+            "description": "Forbiden",
+            "content": { 
+                "application/json":{ 
+                    "example":
+                        {
+                            "message":"Not authenticated"
+                        }
+                    } 
+                }       
+            },  
+        500: {
+            "description": "Su session ha expirado",
+            "content": { 
+                "application/json":
+                    { "example":
+                        {
+                            "message":"Su session ha expirado",
+                            "estado":"Signature has expired"
+                        }
+                    } 
+                }       
+            },                        
+        501: {
+        "description": "Ocurrió un error que no pudo ser controlado",
+        "content": { 
+            "application/json":
+                { "example":
+                    {
+                        "message":"Ocurrió un error que no pudo ser controlado",
+                        "estado":"System Error"
+                    }
+                } 
+            }       
+        },                       
+    }
+)
+def associate_user_group(userGroup:UsuariosGruposEmpleadoSchema,creatorUserId : int = Query (ge=1, le=os.getenv("MAX_ID_USERS")))->dict:
+    db = Session()
+    result=userController(db).asignate_user_group(userGroup, creatorUserId )
+    # evaluamos el resultado
+    estado=result['result']    
+    
+    if (estado=="1") :
+        # se inserto el registro sin problemas
+        return JSONResponse (status_code=201,content={"message":"Se asoció el usuario al grupo"})     
+    elif  (estado=="-2"):
+        # el usuario ya esta asociado a otro grupo, no puede volver a crearlo
+        data=result['data']
+        return JSONResponse (status_code=521,content={"message":"Este usuario esta asociado a otro grupo, no puede volver a crearlo","UsuarioGrupo":jsonable_encoder(data)})     
+    else:
+        codigo=result['result']
+        cadenaError=result['cadenaError']
+        return JSONResponse(status_code=520,content={"message":f"Ocurrió un error que no pudo ser controlado {codigo} {cadenaError} "})              
+
 
 
 '''
@@ -512,7 +881,7 @@ def   list_users(page : int = 1, records : int = 20)->dict:
 # se efectuan busquedas del tipo LIKE en la vista
 @user_router.get ('/user/search',
 tags=['Usuarios'],
-dependencies=[Depends(JWTBearer())],
+dependencies=[Depends(JWTBearer())], 
 responses=
     { 
         200: {
@@ -585,10 +954,9 @@ def   search_users(finding : str = Query (min_length=os.getenv("MIN_STR_SEARCH_U
 
 
 # Funcion para consultar los datos personales de un usuario
-@user_router.get (
-'/user/{id}',
+@user_router.get ('/user/{id}',
 tags=['Usuarios'],
-dependencies=[Depends(JWTBearer())],
+dependencies=[Depends(JWTBearer())], 
 responses=
     { 
         200: {
@@ -599,7 +967,7 @@ responses=
                             "example":
                                 {
                                     "message":"Usuario encontrado",
-                                    "data": "{'id':'1','rut': '12345678912','rut': '12345678912', 'nombres': 'Pedro ', 'apellido_paterno': 'Perez', 'apellido_materno': 'Martinez', 'fecha_nacimiento': '1990-01-01','sexo_id': '1', 'estado_civil_id': '1', 'nacionalidad_id': '1','username': 'pperez' 'password': '12345678','activo':'1','created':'1990-01-01 10:00','updated':'1990-01-01 11:00','creator_user':'1','updater_user':'1' }",
+                                    "data": "{'id': '101','nacionalidad_id': '1','email': 'farayaaraneda@hotmail.com','rut_provisorio': '','username': '19848318-4','sociedad_id': null,'nombres': 'CAMILA IGNACIA ',   'password': '12345678','apellido_paterno': 'ALARCON ','activo': true,'apellido_materno': 'RAMIREZ','created': '2022-05-26T00:00:00','fecha_nacimiento': '1998-03-27','updated':'1990-01-01T00:01:00','sexo_id': 2,'creator_user': '1','rut': '19848318-4','estado_civil_id': 1,'updater_user': '1'}",
                                 }
                         } 
                     
@@ -658,11 +1026,85 @@ def get_user(id:int = Path(ge=1, le=os.getenv("MAX_ID_USERS")))->dict:
     return JSONResponse(status_code=404,content={"message":"Usuario no encontrado"})  
 
 
-# Funcion para consultar el historico de los datos personales de un usuario
-@user_router.get (
-'/user/{id}/list_historico',
+
+# Funcion para consultar los datos personales de un usuario en precarga
+@user_router.get ('/user/{id}/precarga',
 tags=['Usuarios'],
-dependencies=[Depends(JWTBearer())],
+dependencies=[Depends(JWTBearer())], 
+responses=
+    { 
+        200: {
+                "description": "Usuario encontrado",
+                "content": { 
+                    "application/json":
+                        { 
+                            "example":
+                                {
+                                    "message":"Usuario encontrado",
+                                    "data": "{'documento': '1','nombres': 'Admin','apellidos': 'Root','correo': 'null','nacionalidad': '1','genero': '1','fechaNacimiento': '1990-01-01','estadoCivil': '1','region': '13','localidad': '13106','direccion': 'alguna dirección dos','telefonoCelular': 'null','telefonoLocal': 'null'}",
+                                }
+                        } 
+                    
+                } 
+                    
+            },         
+        403: {
+            "description": "Forbiden",
+            "content": { 
+                "application/json":{ 
+                    "example":
+                        {
+                            "message":"Not authenticated"
+                        }
+                    } 
+                }       
+            },  
+        404: {
+            "description": "Usuario no encontrado",
+            "content": { 
+                "application/json":{ 
+                    "example":
+                        {
+                            "message":"Usuario no encontrado"
+                        }
+                    } 
+                }       
+            },   
+        500: {
+            "description": "Su session ha expirado",
+            "content": { 
+                "application/json":
+                    { "example":
+                        {
+                            "message":"Su session ha expirado",
+                            "estado":"Signature has expired"
+                        }
+                    } 
+                }       
+            },                                                           
+    }    
+)
+def get_user(id:int = Path(ge=1, le=os.getenv("MAX_ID_USERS")))->dict:
+    db = Session()
+    # almacenamos el listado de usarios en un resultset
+    result = userController(db).get_preuser(id)
+    # debemnos convertir los objetos tipo BD a Json
+    if (result):
+        if (result["result"]=="1"):
+            data=result['data']
+            return JSONResponse(status_code=200,content=jsonable_encoder(data))    
+        else:
+            return JSONResponse(status_code=404,content={"message":"Usuario no encontrado"})     
+    
+    
+    return JSONResponse(status_code=404,content={"message":"Usuario no encontrado"})  
+
+
+
+# Funcion para consultar el historico de los datos personales de un usuario
+@user_router.get ('/user/{id}/list_historico',
+tags=['Usuarios'],
+dependencies=[Depends(JWTBearer())], 
 responses=
     { 
         200: {
@@ -733,10 +1175,9 @@ def get_user_history_data_personal(id:int = Path(ge=1, le=os.getenv("MAX_ID_USER
 
 
 #funcion para determianr los modulos asignados a un usuario 
-@user_router.get (
-'/user/{id}/asignated_modules',
+@user_router.get ('/user/{id}/asignated_modules',
 tags=['Usuarios'],
-dependencies=[Depends(JWTBearer())],
+dependencies=[Depends(JWTBearer())], 
 responses=
     { 
         200: {
@@ -805,6 +1246,225 @@ def get_user_modules(id:int = Path(ge=1, le=os.getenv("MAX_ID_USERS")))->dict:
 
 
 
+#funcion para determianr los datos laborales usuario 
+@user_router.get ('/user/{id}/datos_laborales',
+tags=['Usuarios'],
+dependencies=[Depends(JWTBearer())], 
+responses=
+    { 
+        200: {
+                "description": "Datos Laborales Encontrados",
+                "content": { 
+                    "application/json":
+                        { 
+                            "example":
+                                {
+                                    "message":"Datos Laborales Encontrados",
+                                    "data": "{'id': '6', 'sociedad_id': '1','sede_id': '1','departamento_id': '1','grupo_id': '1','cargo_id': '1','user_id': '1','tipo_contrato': '1','termino_contrato': '1','fecha_inicio': '2024-01-01','fecha_fin': '1999-01-01','periodo_salario': '30',  'modalidad': '1','dias_descanso': '1','salario_base': '4500','created': '2024-02-29 19:55:05','updated': '2024-02-29 19:55:05', 'creator_user': '1', 'updater_user': '1'}",
+                                }
+                        } 
+                    
+                } 
+            },         
+        403: {
+            "description": "Forbiden",
+            "content": { 
+                "application/json":{ 
+                    "example":
+                        {
+                            "message":"Not authenticated"
+                        }
+                    } 
+                }       
+            },             
+        500: {
+            "description": "Su session ha expirado",
+            "content": { 
+                "application/json":
+                    { "example":
+                        {
+                            "message":"Su session ha expirado",
+                            "estado":"Signature has expired"
+                        }
+                    } 
+                }       
+            },                         
+        520: {
+            "description": "Ocurrió un error que no pudo ser controlado",
+            "content": { 
+                "application/json":
+                    { "example":
+                        {
+                            "message":"Ocurrió un error que no pudo ser controlado",
+                            "estado":"System Error"
+                        }
+                    } 
+                }       
+            },                                                           
+    }    
+)
+def get_user_datos_laborales(id:int = Path(ge=1, le=os.getenv("MAX_ID_USERS")))->dict:
+    db = Session()
+    # almacenamos el listado de usarios en un resultset
+    result = userController(db).get_datos_laborales_userid(id)
+    # debemnos convertir los objetos tipo BD a Json
+    if (result):
+        if (result["result"]=="1"):
+            data=result['data']
+            return JSONResponse(status_code=200,content=jsonable_encoder(data))    
+        else:
+            return JSONResponse(status_code=404,content={"message":"Este usuario no tiene datos laborales"})     
+    
+    
+    return JSONResponse(status_code=404,content={"message":"Este usuario no tiene datos laborales"})  
+
+
+#funcion para determinar los datos de pago usuario 
+@user_router.get ('/user/{id}/datos_pago',
+tags=['Usuarios'],
+dependencies=[Depends(JWTBearer())], 
+responses=
+    { 
+        200: {
+                "description": "Datos de Pago Encontrados",
+                "content": { 
+                    "application/json":
+                        { 
+                            "example":
+                                {
+                                    "message":"Datos de Pago Encontrados",
+                                    "data": "{'id':'1','user_id':'1','medio':'1','banco_id':'1','tipo_cuenta': '1','numero_cuenta':'123456','created':'2024-03-14T08:59:43','updated':'2024-03-14T09:01:45','creator_user':'1','updater_user':'1'}",
+                                }
+                        } 
+                    
+                } 
+            },         
+        403: {
+            "description": "Forbiden",
+            "content": { 
+                "application/json":{ 
+                    "example":
+                        {
+                            "message":"Not authenticated"
+                        }
+                    } 
+                }       
+            },             
+        500: {
+            "description": "Su session ha expirado",
+            "content": { 
+                "application/json":
+                    { "example":
+                        {
+                            "message":"Su session ha expirado",
+                            "estado":"Signature has expired"
+                        }
+                    } 
+                }       
+            },                         
+        520: {
+            "description": "Ocurrió un error que no pudo ser controlado",
+            "content": { 
+                "application/json":
+                    { "example":
+                        {
+                            "message":"Ocurrió un error que no pudo ser controlado",
+                            "estado":"System Error"
+                        }
+                    } 
+                }       
+            },                                                           
+    }    
+)
+def get_datos_pago_userid(id:int = Path(ge=1, le=os.getenv("MAX_ID_USERS")))->dict:
+    db = Session()
+    # almacenamos el listado de usarios en un resultset
+    result = userController(db).get_datos_pago_userid(id)
+    # debemnos convertir los objetos tipo BD a Json
+    if (result):
+        if (result["result"]=="1"):
+            data=result['data']
+            return JSONResponse(status_code=200,content=jsonable_encoder(data))    
+        else:
+            return JSONResponse(status_code=404,content={"message":"Este usuario no tiene datos laborales"})     
+    
+    
+    return JSONResponse(status_code=404,content={"message":"Este usuario no tiene datos laborales"}) 
+
+
+#funcion para determianr a que grupo pertenece el  usuario 
+@user_router.get ('/user/{id}/grupo',
+tags=['Usuarios'],
+dependencies=[Depends(JWTBearer())], 
+responses=
+    { 
+        200: {
+                "description": "Grupo Encontrado",
+                "content": { 
+                    "application/json":
+                        { 
+                            "example":
+                                {
+                                    "message":"Grupo Encontrado",
+                                    "data": "{'id': '6', 'sociedad_id': '1','sede_id': '1','departamento_id': '1','grupo_id': '1','cargo_id': '1','user_id': '1','tipo_contrato': '1','termino_contrato': '1','fecha_inicio': '2024-01-01','fecha_fin': '1999-01-01','periodo_salario': '30',  'modalidad': '1','dias_descanso': '1','salario_base': '4500','created': '2024-02-29 19:55:05','updated': '2024-02-29 19:55:05', 'creator_user': '1', 'updater_user': '1'}",
+                                }
+                        } 
+                    
+                } 
+            },         
+        403: {
+            "description": "Forbiden",
+            "content": { 
+                "application/json":{ 
+                    "example":
+                        {
+                            "message":"Not authenticated"
+                        }
+                    } 
+                }       
+            },             
+        500: {
+            "description": "Su session ha expirado",
+            "content": { 
+                "application/json":
+                    { "example":
+                        {
+                            "message":"Su session ha expirado",
+                            "estado":"Signature has expired"
+                        }
+                    } 
+                }       
+            },                         
+        520: {
+            "description": "Ocurrió un error que no pudo ser controlado",
+            "content": { 
+                "application/json":
+                    { "example":
+                        {
+                            "message":"Ocurrió un error que no pudo ser controlado",
+                            "estado":"System Error"
+                        }
+                    } 
+                }       
+            },                                                           
+    }    
+)
+def get_user_grupo(id:int = Path(ge=1, le=os.getenv("MAX_ID_USERS")))->dict:
+    db = Session()
+    # almacenamos el listado del grupo 
+    result = userController(db).get_user_group(id)
+    # debemnos convertir los objetos tipo BD a Json
+    if (result):
+        if (result["result"]=="1"):
+            data=result['data']
+            return JSONResponse(status_code=200,content=jsonable_encoder(data))    
+        else:
+            return JSONResponse(status_code=404,content={"message":"Este usuario no tiene grupo asignado"})     
+    
+    
+    return JSONResponse(status_code=404,content={"message":"Este usuario no tiene modulos asignados"})  
+
+
 '''
 ============================ rutas PUT =================================================================
 '''
@@ -851,28 +1511,280 @@ responses=
             },                       
     }
 )
-def update_user(usuario:User, user_updater: int = Query(ge=1, le=os.getenv('MAX_ID_USERS')))->dict:
+def update_user(usuario:User, user_updater: int = Query(ge=1, le=os.getenv('MAX_ID_USERS')),id : int =Path(ge=1, le=os.getenv('MAX_ID_USERS')))->dict:
     db = Session()
     # buscamos el registro
-    result = userController(db).update_user(user_updater,usuario) 
+    result = userController(db).update_user(user_updater,usuario,id) 
     if (result['result']=="1"):
-        return JSONResponse(status_code=200,content={"message":"Usuario actualizado"})    
+        data=result['data']
+        return JSONResponse(status_code=200,content={"message":"Usuario actualizado","Usuario":jsonable_encoder(data)})    
     elif (result['result']=="-1"):
         return JSONResponse(status_code=404,content={"message":"Usuario no encontrado"}) 
     elif (result['result']=="-2"):
-        return JSONResponse(status_code=521,content={"message":f"Este Username esta siendo usado por otro usuario userId={result['UserId']}"})     
+        return JSONResponse(status_code=521,content={"message":f"Este Username esta siendo usado por otro usuario, userId={result['UserId']}, por favor rectifique los datos"})     
     elif (result['result']=="-4"):
-        return JSONResponse(status_code=522,content={"message":f"Este RUT está registrado a nombre de otro usuario userId={result['UserId']}"})       
+        return JSONResponse(status_code=522,content={"message":f"Este RUT está registrado a nombre de otro usuario, userId={result['UserId']}, por favor rectifique los datos"})       
     elif (result['result']=="-5"):
-        return JSONResponse(status_code=522,content={"message":"Este RUT  provisorio está registrado a nombre de otro usuario userId={result['UserId']}"})       
+        return JSONResponse(status_code=522,content={"message":f"Este RUT  provisorio está registrado a nombre de otro usuario, userId={result['UserId']}, por favor rectifique los datos"})       
+    elif (result['result']=="-6"):
+        cadenaError=result['cadenaError']
+        return JSONResponse (status_code=523,content={"message":cadenaError})      
     else:
-        return JSONResponse(status_code=520,content={"message":"Ocurrió un error que no pudo ser controlado"})          
+        codigo=result['result']
+        cadenaError=result['cadenaError']
+        return JSONResponse(status_code=520,content={"message":f"Ocurrió un error que no pudo ser controlado {codigo} {cadenaError} "})         
 
+# Función para actualizar  el grup al cual pertenece el usuario
+@user_router.put ('/user/{id}/update_user_group',
+tags=['Usuarios'],
+dependencies=[Depends(JWTBearer())],
+responses=
+    { 
+        403: {
+            "description": "Forbiden",
+            "content": { 
+                "application/json":{ 
+                    "example":
+                        {
+                            "message":"Not authenticated"
+                        }
+                    } 
+                }       
+            },  
+        500: {
+            "description": "Su session ha expirado",
+            "content": { 
+                "application/json":
+                    { "example":
+                        {
+                            "message":"Su session ha expirado",
+                            "estado":"Signature has expired"
+                        }
+                    } 
+                }       
+            },                        
+        520: {
+            "description": "Ocurrió un error que no pudo ser controlado",
+            "content": { 
+                "application/json":
+                    { "example":
+                        {
+                            "message":"Ocurrió un error que no pudo ser controlado",
+                            "estado":"System Error"
+                        }
+                    } 
+                }       
+            },                       
+    }
+)
+def update_user_group(idgroup : int, user_updater: int = Query(ge=1, le=os.getenv('MAX_ID_USERS')),id : int =Path(ge=1, le=os.getenv('MAX_ID_USERS')))->dict:
+    db = Session()
+    # buscamos el registro
+    result = userController(db).update_user_group(user_updater,idgroup,id) 
+    if (result['result']=="1"):
+        data=result['data']
+        return JSONResponse(status_code=200,content={"message":"Usuario asignado a un nuevo grupo","Usuario":jsonable_encoder(data)})    
+    elif (result['result']=="-1"):
+        return JSONResponse(status_code=404,content={"message":"Usuario no encontrado"}) 
+    elif (result['result']=="-6"):
+        cadenaError=result['cadenaError']
+        return JSONResponse (status_code=523,content={"message":cadenaError})      
+    else:
+        codigo=result['result']
+        cadenaError=result['cadenaError']
+        return JSONResponse(status_code=520,content={"message":f"Ocurrió un error que no pudo ser controlado {codigo} {cadenaError} "})         
+
+# Función para actualizar  los datos personales un preuser
+@user_router.put ('/user/{id}/update_preuser',
+tags=['Usuarios'],
+dependencies=[Depends(JWTBearer())],
+responses=
+    { 
+        200: {
+            "description": "Usuario Actualizado",
+            "content": { 
+                "application/json":{ 
+                    "example":
+                        {
+                            "message":"Usuario Actualizado"
+                        }
+                    } 
+                }       
+            },          
+        403: {
+            "description": "Forbiden",
+            "content": { 
+                "application/json":{ 
+                    "example":
+                        {
+                            "message":"Not authenticated"
+                        }
+                    } 
+                }       
+            },  
+        500: {
+            "description": "Su session ha expirado",
+            "content": { 
+                "application/json":
+                    { "example":
+                        {
+                            "message":"Su session ha expirado",
+                            "estado":"Signature has expired"
+                        }
+                    } 
+                }       
+            },                        
+        520: {
+            "description": "Ocurrió un error que no pudo ser controlado",
+            "content": { 
+                "application/json":
+                    { "example":
+                        {
+                            "message":"Ocurrió un error que no pudo ser controlado",
+                            "estado":"System Error"
+                        }
+                    } 
+                }       
+            },                       
+        521: {
+            "description": "Error en los formatos de los datos",
+            "content": { 
+                "application/json":
+                    { "example":
+                        {
+                            "message":"Error en los formatos de los datos",
+                            "estado":"System Error"
+                        }
+                    } 
+                }       
+            },                                   
+
+    }
+)
+def update_preuser2(preUser:PreUserSchema, user_updater: int = Query(ge=1, le=os.getenv('MAX_ID_USERS')),id : int = Path (ge=1, le=os.getenv('MAX_ID_USERS')))->dict:
+    db = Session()
+    # buscamos el registro
+    result = userController(db).update_preuser2(id,user_updater,preUser) 
+    if (result['result']=="1"):
+        return JSONResponse(status_code=200,content={"message":"Usuario actualizado"})    
+    elif (result['result']=="-2"):
+        cadenaErrores=result["estado"]
+        return JSONResponse (status_code=521,content={"message":"Error en los formatos de los datos","estado":cadenaErrores})        
+    elif (result['result']=="-1"):
+        data=result['user']
+        return JSONResponse(status_code=520,content={"message":f"Este Documento está registrado a nombre de otro usuario ","user":jsonable_encoder(data)})       
+    elif (result['result']=="-3"):
+        return JSONResponse(status_code=404,content={"message":f"Este Usuario no existe, Id del Usuario:{id }"})       
+
+    else:
+        return JSONResponse(status_code=500,content={"message":f"Ocurrió un error que no pudo ser controlado {result['result']}"})              
+
+
+# Funcion para crear los datos personles de un usuario
+@user_router.put ('/user/{id}/save_preuser',
+tags=['Usuarios'],
+dependencies=[Depends(JWTBearer())], 
+responses=
+    { 
+        200: {
+            "description": "Data Actualizada",
+            "content": { 
+                "application/json":{
+                    "example":
+                        {
+                            "message":"Se creo el preregistro del usuario en el sistema",
+                        }
+                    } 
+                }       
+            },
+        201: {
+            "description": "Se creo el preregistro del usuario en el sistema",
+            "content": { 
+                "application/json":{
+                    "example":
+                        {
+                            "message":"Se creo el preregistro del usuario en el sistema",
+                            "newUserId":"1"
+                        }
+                    } 
+                }       
+            },
+        403: {
+            "description": "Forbiden",
+            "content": { 
+                "application/json":{ 
+                    "example":
+                        {
+                            "message":"Not authenticated"
+                        }
+                    } 
+                }       
+            },             
+        500: {
+            "description": "Su session ha expirado",
+            "content": { 
+                "application/json":
+                    { "example":
+                        {
+                            "message":"Su session ha expirado",
+                            "estado":"Signature has expired"
+                        }
+                    } 
+                }       
+            },              
+        520: {
+            "description": "Ocurrió un error que no pudo ser controlado",
+            "content": { 
+                "application/json":
+                    { "example":
+                        {
+                            "message":"Ocurrió un error que no pudo ser controlado",
+                            "estado":"System Error"
+                        }
+                    } 
+                }       
+            },                       
+        521: {
+            "description": "Ocurrió un error que no pudo ser controlado",
+            "content": { 
+                "application/json":
+                    { "example":
+                        {
+                            "message":"Cadena de error",
+                            "estado":"System Error"
+                        }
+                    } 
+                }       
+            }, 
+
+    }
+)
+def save_preuser(preregistro_user2:PreUser2Schema, id : int = Path (ge=1, le=os.getenv("MAX_ID_USERS")), userUpdater : int = Query (ge=1, le=os.getenv("MAX_ID_USERS")))->dict:
+    db = Session()
+    result=userController(db).update_pre_user(preregistro_user2,id,userUpdater)
+    # evaluamos el resultado
+    estado=result['result']
+
+    if (estado=="1") :
+        # se inserto el registro sin problemas
+        newUserId=result["newUserId"]
+        return JSONResponse (status_code=201,content={"message":"Se creo el usuario en el sistema","newUserId":newUserId})  
+    if (estado=="2") :
+        # se inserto el registro sin problemas
+        return JSONResponse (status_code=200,content={"message":"Datos Actualizados"})         
+    elif (estado=="-2"):
+        userExist=jsonable_encoder(result['user'])
+        return JSONResponse (status_code=422,content={"message":"Este RUT ya fue registrado en el sistema, no puede volver a insertarlo","User":userExist})     
+    elif (estado=="-1"):
+        cadenaError=result['cadenaError']
+        return JSONResponse (status_code=521,content={"message":cadenaError})     
+    else:
+        return JSONResponse (status_code=520,content={"message":"Ocurrió un error que no pudo ser controlado","estado":result})
 
 # Función para activar un usuario
 @user_router.put ('/user/{id}/activate_user',
 tags=['Usuarios'],
-dependencies=[Depends(JWTBearer())],
+dependencies=[Depends(JWTBearer())], 
 responses=
     { 
         200: {
@@ -938,7 +1850,7 @@ def activate_user( user_updater: int = Query (ge=1, le=os.getenv('MAX_ID_USERS')
 # Función para desactivar al usuario
 @user_router.put ('/user/{id}/deactivate_user',
 tags=['Usuarios'],
-dependencies=[Depends(JWTBearer())],
+dependencies=[Depends(JWTBearer())], 
 responses=
     { 
         200: {
@@ -1005,7 +1917,7 @@ def deactivate_user(user_updater: int = Query (ge=1, le=os.getenv('MAX_ID_USERS'
 # Función para actualizar  la clave de un usuario
 @user_router.put ('/user/{id}/update_password',
 tags=['Usuarios'],
-dependencies=[Depends(JWTBearer())],
+dependencies=[Depends(JWTBearer())], 
 responses=
     { 
         403: {
@@ -1067,15 +1979,14 @@ def update_password_user( password:str = Query (min_length=os.getenv("MIN_LENGTH
 ============================ rutas faltantes =================================================================
 '''
 '''
+	asignate_user_department        post
 	asignate_user_payments          post
 	asignate_masive_user_groups     post 
-	asignate_user_group             post
 	asignate_masive_user_groups     post   
 	asignate_user_branch            post        
+
 	updater_payments                put
-	asignate_user_department        put
 	update_user_branch              put
     update_user_department          put
-	update _user_group              put
 
 '''

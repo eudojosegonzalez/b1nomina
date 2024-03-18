@@ -125,7 +125,7 @@ class contactUserController():
             self.db.commit()
 
             #creamos el registro historico de contacto del usuario
-            self.create_historico_contact_user(newContactUser,"Se creó la data de contacto del usuario")
+            contactUserController.create_historico_contact_user(self,newContactUser,"Se creó la data de contacto del usuario")
 
             newcontactUserId=newContactUser.id
             return ({"result":"1","estado":"creado","newContactUserId":newcontactUserId})

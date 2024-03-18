@@ -206,7 +206,7 @@ class FilesUserController():
 
   # metodo para consultar un archivo por Id
     # @params fileId: id del archivo del Usuario que se desea consultar
-    def list_files_users(self, userId, page, records):
+    def list_files_users(self, userId):
 
         # verificamos que el usuario tenga archivos registrados bajo su ID
         nRecordFilesUser= self.db.query(ArchivosUsuariosModel).filter(ArchivosUsuariosModel.user_id == userId).count()
@@ -230,21 +230,8 @@ class FilesUserController():
         if (nRecordFilesUser > 0):
             try:
                 # Buscamos los archivos del usuario
-                consulta = self.db.query(ArchivosUsuariosModel).filter(ArchivosUsuariosModel.user_id == userId)
-                ''' resultado={
-                    "id":result.id,
-                    "user_id":result.user_id,
-                    "nombre":result.nombre,
-                    "url":result.url,
-                    "created":result.created,
-                    "updated": result.updated,
-                    "creator_user":result.creator_user,
-                    "updater_user":result.updater_user,
-                    "absolute_path":"file://"+app_dir+result.url
-                }'''
-                consulta = consulta.limit(records)
-                consulta = consulta.offset(records * (page - 1))
-                resultado=consulta.all()            
+                resultado = self.db.query(ArchivosUsuariosModel).filter(ArchivosUsuariosModel.user_id == userId).all()
+          
                 if (resultado):
                     return ({"result":"1","estado":"Archivo encontrado","resultado":resultado })                            
                 else:
@@ -258,14 +245,26 @@ class FilesUserController():
 
     # esta función permite la eliminación de un archivode usuario
     # @param fileId: Id que representa la clave primaria del archvivo que se eliminará
-    def delete_file_user(fileId:int):
-       # verificamos la existencia del ID
+    def delete_file_user(self,fileId:int):
+        # buscamos el registro
+        nRecordFileUser = self.db.query(ArchivosUsuariosModel).filter(ArchivosUsuariosModel.id==fileId).count()
 
-        # insertamos en el registro historico de archivos
+        main_file = os.path.abspath(__file__)
+        app_dir = os.path.dirname(main_file)+"/.."        
 
-        # eliminamos fisicamente el archivo
+        if (nRecordFileUser > 0):
+            try:
+                fileExists= self.db.query(ArchivosUsuariosModel).filter(ArchivosUsuariosModel.id==fileId).first()
 
-        #eliminamos el registro de la BD
+                ruta_archivo=app_dir+"/"+fileExists.url
 
-        # devolvemos los resultados         
-         return ({"result":"1","estado":"Archivo eliminado" })   
+                self.db.delete(fileExists)
+                self.db.commit()
+
+                os.remove(ruta_archivo)
+
+                return ({"result":"1","estado":"Archivo eliminado"})                
+            except OSError as error:
+                return({"result":"-3","estado":f"Error al eliminar el archivo: {error} ruta {ruta_archivo}"})
+        else:
+            return ({"result":"-1","estado":"Archivo no encontrado" })   

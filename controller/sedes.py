@@ -65,7 +65,7 @@ import  datetime
 from models.sede import Sede as SedeModel
 from models.historico_sede import HistoricoSede as HistoricoSedeModel
 
-#importamos el esquema de datos de Sociedades
+#importamos el esquema de datos de Sede
 from schemas.sede import Sede as SedeSchema
 
 
@@ -77,7 +77,7 @@ class sedesController():
         self.db = db
 
     # funcion para crear el registro de historico las sedes
-    #@param sociedad: Modelo del registro de Sociedades
+    #@param sede: Modelo del registro de Sede
     #@param observavacion: Observación sobre el historico
     def create_historico_sede(self, sede: SedeModel, observacion:str):
         # determinamos la fecha/hora actual
@@ -113,7 +113,7 @@ class sedesController():
     
     #metodo para insertar  los datos de la sede
     # @userCreatorId: Id del usuario que está creando el registro
-    # @params socieda: esquema de los datos de  sede  que se desea insertar       
+    # @params sede: esquema de los datos de  sede  que se desea insertar       
     def create_sede(self, sede:SedeSchema, userCreatorId:int ):
         #obtenemos la fecha/hora del servidor
         ahora=datetime.datetime.now()
@@ -171,7 +171,7 @@ class sedesController():
                 return( {"result":"-3","error": str(e)})
     
 
-    #metodo para consultar los datos de una sede
+    # metodo para consultar los datos de una sede
     # @userUpdaterId: Id del usuario que está actualizando el registro
     def get_sede(self,id:int):
 
@@ -192,7 +192,7 @@ class sedesController():
                 return( {"result":"-1","error": str(e)}) 
             
 
-    #metodo para efectuar búsquedas en las sedes
+    # metodo para efectuar búsquedas en las sedes
     # @params cadena: cadena que se buscara en la tabla sedes comparando con el campo nombre 
     def search_sedes(self,finding ,page, records):
 
@@ -221,15 +221,15 @@ class sedesController():
                 return( {"result":"-3","error": str(e)})       
             
  
-    #metodo para actualizar los datos de una sede por Id
+    # metodo para actualizar los datos de una sede por Id
     # @params userUpdaterId: Id del usuario que está actualizando el registro
-    # @params sociedad: esquema de los datos de la sede
+    # @params sede: esquema de los datos de la sede
     # @params id: Id de la sede que será actualizado
     def update_sede(self, sede:SedeSchema, userUpdaterId:int, id:int):
         #obtenemos la fecha/hora del servidor
         ahora=datetime.datetime.now()
         
-        # buscamos si este banco existe
+        # buscamos si este sede existe
         nRecord = self.db.query(SedeModel).filter(SedeModel.id == id).count()
         
         if (nRecord == 0):
@@ -298,20 +298,20 @@ class sedesController():
 
 
     # metodo para listar los datos historicos  de una sede
-    # @params id: Id de la sociedad que se esta consultando
+    # @params id: Id de la sede que se esta consultando
     def list_history_sedes(self, page:int, records: int, id:int):
 
         # buscamos si exite la sede
-        nRecord = self.db.query(HistoricoSedeModel).filter(HistoricoSedeModel.sociedad_id == id).count()
+        nRecord = self.db.query(HistoricoSedeModel).filter(HistoricoSedeModel.sede_id == id).count()
         
         if (nRecord == 0):
             # el no se consiguieron datos historicos de la sede
             return ({"result":"-2","estado":"No record found"})
         else:
-            # existen los datos historicos del banco
+            # existen los datos historicos de la sede
             try:
                 # ejecutamos la consulta
-                consulta = self.db.query(HistoricoSedeModel).filter(HistoricoSedeModel.sociedad_id == id)
+                consulta = self.db.query(HistoricoSedeModel).filter(HistoricoSedeModel.sede_id == id)
                 consulta = consulta.limit(records)
                 consulta = consulta.offset(records * (page - 1))
                 listHistorySede=consulta.all()

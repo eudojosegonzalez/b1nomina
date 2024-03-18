@@ -4,7 +4,7 @@ from sqlalchemy.ext.declarative import declarative_base
 
 host = "localhost"
 username = "invitado"
-password = "Invitado_2020.05"
+password = "Invitado.2020_05"
 database = "b1"
 
 engine = create_engine(f"mysql+pymysql://{username}:{password}@{host}/{database}",

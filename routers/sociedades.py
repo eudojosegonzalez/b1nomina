@@ -654,7 +654,7 @@ async def   search_users_sdg(sdg : SDGSchema, id : int =Path(ge=1, lt=1000) )->d
     sede_id=sdg.sede_id
     departamento_id=sdg.departamento_id
     grupo_id=sdg.grupo_id
-    result = sociedadesController(db).search_users_sdg(id,sede_id,departamento_id,grupo_id)
+    result = sociedadesController(db).search_users_sdg2(id,sede_id,departamento_id,grupo_id)
 
     # debemos convertir los objetos tipo BD a Json
     if (result):
@@ -667,6 +667,8 @@ async def   search_users_sdg(sdg : SDGSchema, id : int =Path(ge=1, lt=1000) )->d
             return JSONResponse(status_code=520,content={"message":"System Error","error":result})          
     else:
         return JSONResponse(status_code=520,content={"message":"System Error","error":result})
+    
+    
 
 # ruta para listar loas categorias de configuracion de una sociedad por ID
 @sociedades_router.get ('/sociedad/{id}/list_categorias_configuracion', 
@@ -725,7 +727,7 @@ responses=
             },                       
     }
 )
-def list_sociedad_categorias_configuracion( id : int =Path(ge=1, lt=1000))->dict:
+def list_sociedad_categorias_configuracion(id : int =Path(ge=1, lt=1000))->dict:
     db = Session()
     # almacenamos el listado de la consulta
     result = sociedadesController(db).list_sociedad_categorias_configuracion(id)
@@ -794,7 +796,7 @@ responses=
             },                       
     }
 )
-def list_sociedad_configuraciones( id : int =Path(ge=1, lt=1000))->dict:
+def list_sociedad_configuraciones(id : int =Path(ge=1, lt=1000))->dict:
     db = Session()
     # almacenamos el listado de la consulta
     result = sociedadesController(db).list_sociedad_configuraciones(id)
@@ -804,6 +806,147 @@ def list_sociedad_configuraciones( id : int =Path(ge=1, lt=1000))->dict:
         return JSONResponse(status_code=200,content=jsonable_encoder(result))    
     else:
         return JSONResponse(status_code=404,content={"message":"No hay registros que mostrar"}) 
+    
+
+
+# ruta para listar los tipos de prestamos de una sociedad por ID
+@sociedades_router.get ('/sociedad/{id}/list_tipos_prestamos', 
+tags=["Sociedades"],
+dependencies=[Depends(JWTBearer())],
+responses=
+    { 
+       200: {
+                "description": "Tipo de Prestamo Encontrado",
+                "content": { 
+                    "application/json":
+                        { 
+                            "example":
+                                {
+                                    "message":"Tipo de Prestamo Encontrado",
+                                    "data": "{'id': '2','sociedad_id': '1','descripcion': 'CCAF','CCAF': '1','cuenta': '21050003','caja_compensacion_id': 'null','created': '2024-02-21T10:00:00','updated': '2024-02-21T10:00:00','creator_user': '1','updater_user': '1'}",
+                                }
+                        } 
+                    
+                } 
+            }, 
+        403: {
+            "description": "Forbiden",
+            "content": { 
+                "application/json":{ 
+                    "example":
+                        {
+                            "message":"Not authenticated"
+                        }
+                    } 
+                }       
+            },             
+        500: {
+            "description": "Su session ha expirado",
+            "content": { 
+                "application/json":
+                    { "example":
+                        {
+                            "message":"Su session ha expirado",
+                            "estado":"Signature has expired"
+                        }
+                    } 
+                }       
+            },                         
+        520: {
+            "description": "Ocurrió un error que no pudo ser controlado",
+            "content": { 
+                "application/json":
+                    { "example":
+                        {
+                            "message":"Ocurrió un error que no pudo ser controlado",
+                            "estado":"System Error"
+                        }
+                    } 
+                }       
+            },                       
+    }
+)
+def list_tipos_prestamos_sociedad(id : int = Path(ge=1, lt=1000))->dict:
+    db = Session()
+    # almacenamos el listado de usarios en un resultset
+    result = sociedadesController(db).list_tipos_prestamos_sociedad(id)
+
+    # debemnos convertir los objetos tipo BD a Json
+    if (result):
+        return JSONResponse(status_code=200,content=jsonable_encoder(result))    
+    else:
+        return JSONResponse(status_code=404,content={"message":"No hay registros que mostrar"}) 
+    
+
+
+# ruta para listar los parametros de creacion de usuarios de una sociedad por ID
+@sociedades_router.get ('/sociedad/{id}/parametros_crear_usuario', 
+tags=["Sociedades"],
+dependencies=[Depends(JWTBearer())],
+responses=
+    { 
+       200: {
+                "description": "Parametros",
+                "content": { 
+                    "application/json":
+                        { 
+                            "example":
+                                {
+                                    "message":"parametros",
+                                    "data": "{[{'departamentos': [{'id': '1','nombres': 'Administración'},{'id': '2','nombres': 'Contabilidad'},{'id': '3','nombres': 'Ventas'}]},{'grupos': [{'id': '1','nombres': 'Administrativo'},{'id': '2','nombres': 'Ejecutivo'},{'id': '3','nombres': 'Operaciones'}]}]}",
+                                }
+                        } 
+                    
+                } 
+            }, 
+        403: {
+            "description": "Forbiden",
+            "content": { 
+                "application/json":{ 
+                    "example":
+                        {
+                            "message":"Not authenticated"
+                        }
+                    } 
+                }       
+            },             
+        500: {
+            "description": "Su session ha expirado",
+            "content": { 
+                "application/json":
+                    { "example":
+                        {
+                            "message":"Su session ha expirado",
+                            "estado":"Signature has expired"
+                        }
+                    } 
+                }       
+            },                         
+        520: {
+            "description": "Ocurrió un error que no pudo ser controlado",
+            "content": { 
+                "application/json":
+                    { "example":
+                        {
+                            "message":"Ocurrió un error que no pudo ser controlado",
+                            "estado":"System Error"
+                        }
+                    } 
+                }       
+            },                       
+    }
+)
+def list_parametros_crear_usuario(id: int = Path(ge=1, lt=1000))->dict:
+    db = Session()
+    # almacenamos el listado de usarios en un resultset
+    result = sociedadesController(db).get_parametros_crear_usuario(id)
+
+    # debemnos convertir los objetos tipo BD a Json
+    if (result):
+        return JSONResponse(status_code=200,content=jsonable_encoder(result))    
+    else:
+        return JSONResponse(status_code=404,content={"message":"No hay registros que mostrar"}) 
+    
     
 
 # ruta para listar los datos historicos de la sociedades por ID
@@ -849,7 +992,7 @@ responses=
             },                       
     }
 )
-def get_resumen_empleados(id : int =Path(ge=1, lt=1000))->dict:
+def get_resumen_empleados(id : int = Path(ge=1, lt=1000))->dict:
     db = Session()
     # almacenamos el listado de usarios en un resultset
     result = sociedadesController(db).get_employee_summary(id)

@@ -22,14 +22,15 @@ class HistoricoArchivosUsuarios(Base):
     '''
     __tablename__="HistoricoArchivosUsuarios"
     id = Column(BIGINT, primary_key=True, autoincrement=True)
-    user_id = Column(BIGINT)
+    file_id = Column(BIGINT, nullable=False)
+    user_id = Column(BIGINT, nullable=False)
     nombre = Column(VARCHAR(250), nullable=False)
     url = Column(TEXT, nullable=False)
     created = Column (DateTime, nullable=False) #datetime NOT NULL,    
     updated = Column (DateTime, nullable=False)  #datetime NOT NULL,
     creator_user= Column(BIGINT, nullable=False) #user BIGINT NOT NULL,     
     updater_user = Column(BIGINT, nullable=False) #user BIGINT NOT NULL, 
-    fecha_registro = Column(BIGINT, nullable=False) #user BIGINT NOT NULL,   
+    fecha_registro = Column(DateTime, nullable=False) #user BIGINT NOT NULL,   
     observaciones = Column(TEXT, nullable= True)     
  
 
