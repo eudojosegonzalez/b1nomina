@@ -46,6 +46,7 @@ from routers.datos_laborales import datos_laborales_router
 from routers.datos_pago import datos_pago_router
 from routers.usuarios_afc import usuarios_afc_router
 from routers.usuarios_afp import usuarios_afp_router
+from routers.usuarios_prevision_salud import usuarios_prevision_salud_router
 
 #importamos el manejador de errores
 from middleware.error_handler import ErrorHandler
@@ -99,7 +100,11 @@ tags_metadata = [
     {
         "name": "AFP Usuarios",
         "description": "Operaciones relacionadas con los Datos AFP de los Usuarios",
-    },                
+    }, 
+    {
+        "name": "Prevision Salud Usuarios",
+        "description": "Operaciones relacionadas con los Datos Prevision Salud de los Usuarios",
+    },                    
     {
         "name": "Instituciones AFP",
         "description": "Operaciones relacionadas con las instituciones AFP",
@@ -222,6 +227,7 @@ app.include_router(datos_laborales_router)
 app.include_router(datos_pago_router)
 app.include_router(usuarios_afc_router)
 app.include_router(usuarios_afp_router)
+app.include_router(usuarios_prevision_salud_router)
 app.include_router(categorias_configuracion_router)
 app.include_router(configuracion_router)
 app.include_router(periodos_router)
@@ -245,6 +251,7 @@ app.include_router(tipos_prestamos_router)
 app.include_router(cajas_compensacion_router)
 app.include_router(tramos_impuesto_unico_router)
 app.include_router(tramos_asignacion_familiar_router)
+
 
 
 

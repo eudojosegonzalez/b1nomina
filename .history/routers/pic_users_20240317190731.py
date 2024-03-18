@@ -264,19 +264,7 @@ responses=
                     } 
                 }       
             },                          
-        520: {
-            "description": "No se pudo elimiar el registro",
-            "content": { 
-                "application/json":
-                    { "example":
-                        {
-                            "message":"No se pudo elimiar el registro",
-                            "estado":"System Error"
-                        }
-                    } 
-                }       
-            },         
-        521: {
+        501: {
             "description": "Ocurrió un error que no pudo ser controlado",
             "content": { 
                 "application/json":
@@ -300,7 +288,7 @@ def pic_delete_user(id : int = Path (ge=1, le=os.getenv("MAX_ID_USERS"))):
             return JSONResponse(status_code=201,content=jsonable_encoder(data))    
         elif (result["result"]=="-3"):
             data=result["estado"]
-            return JSONResponse(status_code=521,content=jsonable_encoder(data))    
+            return JSONResponse(status_code=520,content=jsonable_encoder(data))    
         else:
             return JSONResponse(status_code=404,content={"message":"Archivo no encontrado"})     
    

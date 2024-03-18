@@ -207,7 +207,7 @@ class PicUserController():
         '''
         if (nRecordFileUser>0):
             # Obtener la dirección del servidor.
-            result= self.db.query(FotosUsuariosModel).filter(FotosUsuariosModel.user_id==fileId).first()
+            result= self.db.query(FotosUsuariosModel).filter(FotosUsuariosModel.id==fileId).first()
 
             resultado={
                 "id":result.id,
@@ -242,7 +242,7 @@ class PicUserController():
 
                 ruta_archivo=app_dir+"/"+filePicExists.url
 
-                self.db.delete(filePicExists)
+                self.db.add(filePicExists)
                 self.db.commit()
 
                 os.remove(ruta_archivo)

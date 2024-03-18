@@ -16,6 +16,7 @@ class DatosPago(BaseModel):
     medio : int 
     banco_id : int 
     tipo_cuenta : int
+    numero_cuenta : str = Field(min_length=0, max_length=100)
 
     model_config = {
         "json_schema_extra": {
@@ -24,7 +25,8 @@ class DatosPago(BaseModel):
                     "user_id": 1,
                     "medio":1,
                     "banco_id":1,
-                    "tipo_cuenta":1
+                    "tipo_cuenta":1,
+                    "numero_cuenta":""
                 }
             ]
         }

@@ -30,7 +30,7 @@ class HistoricoArchivosUsuarios(Base):
     updated = Column (DateTime, nullable=False)  #datetime NOT NULL,
     creator_user= Column(BIGINT, nullable=False) #user BIGINT NOT NULL,     
     updater_user = Column(BIGINT, nullable=False) #user BIGINT NOT NULL, 
-    fecha_registro = Column(DateTime, nullable=False) #user BIGINT NOT NULL,   
+    fecha_registro = Column(BIGINT, nullable=False) #user BIGINT NOT NULL,   
     observaciones = Column(TEXT, nullable= True)     
  
 

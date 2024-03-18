@@ -48,6 +48,8 @@ import uuid
 import io
 import csv
 
+from middleware.error_handler import ErrorHandler
+
 from fastapi import File, UploadFile, Request
 from fastapi.staticfiles import StaticFiles
 import openpyxl
@@ -60,6 +62,7 @@ from controller.campos_adicionales_user import CamposUserController
 from controller.validaciones_user import ValidationController
 from controller.usuarios_afc import UsuariosAFCController
 from controller.usuarios_afp import UsuariosAFPController
+from controller.usuarios_prevision_salud import UsuariosPrevisionSaludController
 
 
 # import all you need from fastapi-pagination
@@ -77,6 +80,7 @@ from models.user import Usuario as UsuarioModel
 from models.historico_user import HistoricoUsuario as HistoricoUsuarioModel
 from models.modulo import Modulo as ModuloModel
 from models.datos_laborales import DatosLaborales as DatosLaboralesModel
+from models.datos_pago import DatosPago as DatosPagoModel
 from models.view_general_user import ViewGeneralUser
 from models.view_general_user_modulos import viewGeneralUserModulo as viewGeneralUserModuloModel
 from models.view_general_user3 import ViewGeneralUser3 as ViewGeneralUser3Model
@@ -100,6 +104,7 @@ from schemas.campos_adicionales_user import CamposAdicionalesUser as CamposAdici
 from schemas.usuarios_grupo import UsuariosGruposEmpleado as UsuariosGruposEmpleadoSchema
 from schemas.usuarios_afc import UsuariosAFC as UsuariosAFCSchema
 from schemas.usuarios_afp import UsuariosAFP as UsuariosAFPSchema
+from schemas.usuarios_prevision_salud import UsuariosPrevicionSalud as UsuariosPrevicionSaludSchema
 
 
 # importamos la utilidad para generar el hash del password
@@ -488,106 +493,6 @@ class userController():
             return ({"result":"-1","estado":f"Hay errores en sus datos {cadenaError}"})
         
         
-
-    #metodo para insertar  los datos personales de preregistro del usuario   
-    # @params preUser: esquema de los datos del usuario que se desea insertar      
-    # @params idUser: id del userr que se esta actualizando
-    # @params userUpdater: id del usuario que ejecuta la actualizacion                          
-    def update_preuser2(self, idUser,userUpdater, preUser:PreUserSchema):
-        paso=1
-        #obtenemos la fecha/hora del servidor
-        ahora=datetime.datetime.now()
-        
-        # buscamos si el rut o el rut provisiorio ya existen
-        rutV=preUser.documento
-
-        # verificamos is el usuario existe 
-        paso=2
-        nRecordUserExist=self.db.query(UsuarioModel).filter(UsuarioModel.id == idUser).count()
-
-        if (nRecordUserExist):
-
-            # contamos si existe un rut identico en la base de datos con otro id
-            paso=3
-            nRecordUserRut = self.db.query(UsuarioModel).filter(and_(UsuarioModel.rut == rutV ,UsuarioModel.id != idUser)).count()
-
-
-            # contamos si existe un rut identico en la base de datos 
-            paso=4
-            nRecordUserRutProvisiorio = self.db.query(UsuarioModel).filter(and_(UsuarioModel.rut_provisorio == rutV ,UsuarioModel.id != idUser)).count()        
-
-            #verificamos si existe o no el rut y el rutprovisorio
-            if ((nRecordUserRut > 0 ) or (nRecordUserRutProvisiorio > 0)):
-                # el rut ya existe
-                paso=5
-                userExistsUserRut = self.db.query(UsuarioModel).filter(UsuarioModel.rut == rutV).first()
-                return ({"result":"-1","estado":"Este Documento ya existe en la Base de Datos, no puede volver a asignarlo a otro empleado","user": userExistsUserRut})                
-
-            #area de validacion
-            rutOk=False
-            nombresOk=False
-            apellidosOk=False
-            correoOk=False
-
-            paso=6
-            rutOk=ValidationController.validarRut(preUser.documento)
-            paso=7
-            nombresOk=ValidationController.validar_nombre(preUser.nombres)
-            paso=8
-            apellidosOk=ValidationController.validar_nombre(preUser.apellidos)
-            paso=9
-            correoOk=ValidationController.validarEmail(preUser.correo)
-
-            if (rutOk and  nombresOk and apellidosOk  and correoOk):
-                try:
-                    paso=10
-                    userExistsUser=self.db.query(UsuarioModel).filter(UsuarioModel.id == idUser).first()
-                
-                    userExistsUser.rut=preUser.documento,
-                    userExistsUser.nombres = preUser.nombres.upper().strip(),
-                    userExistsUser.apellido_paterno = preUser.apellidos.upper().strip(),
-                    userExistsUser.updated=ahora,
-                    userExistsUser.updater_user=userUpdater
-                    
-                    paso=11
-                    self.db.commit()
-
-                except ValueError as e:
-                    return( {"result":"-3","cadenaError": f"Error {str(e)} paso {paso}"})
-                        
-                    
-                try:
-                    paso=12
-                    # actyalizamos  el registro de contacto
-                    userContactExist=self.db.query(contactUserModel).filter(contactUserModel.user_id==idUser).first()
-                    userContactExist.email=preUser.correo,
-                    userContactExist.updated=ahora,
-                    userContactExist.updater_user=userUpdater
-
-                    paso=13
-                    self.db.commit()
-
-                    return ({"result":"1","estado":"Actualizado"})
-
-                except ValueError as e:
-                    return( {"result":"-1","cadenaError": f"Error {str(e)} paso {paso}"})
-
-            else:
-                cadenaError="Error en los formatos de los siguientes datos:"
-                if (not rutOk):
-                    cadenaError = cadenaError + " Rut invalido"        
-                if (not nombresOk):
-                    cadenaError=cadenaError + " Nombres contiene caracateres inválidos"    
-                if (not apellidosOk):
-                    cadenaError=cadenaError + " Apellidos contiene caracateres inválidos"  
-                if (not correoOk):
-                    cadenaError=cadenaError + " El correo está mal formateado"                                        
-
-                return ({"result":"-2","estado":f"Hay errores en sus datos {cadenaError}"})        
-        else:
-            # usuario no encontrado
-            return ({"result":"-3","estado":"Usuario no existe"}) 
-            
     #metodo para insertar  los datos personales de preregistro del usuario   
     # @params preUser: esquema de los datos del usuario que se desea insertar       
     def update_pre_user(self, preUser:PreUser2Schema,userId, updateUser):
@@ -884,6 +789,108 @@ class userController():
 
             return( {"result":"-1","cadenaError":cadenaError})               
 
+
+
+    #metodo para insertar  los datos personales de preregistro del usuario   
+    # @params preUser: esquema de los datos del usuario que se desea insertar      
+    # @params idUser: id del userr que se esta actualizando
+    # @params userUpdater: id del usuario que ejecuta la actualizacion                          
+    def update_preuser2(self, idUser,userUpdater, preUser:PreUserSchema):
+        paso=1
+        #obtenemos la fecha/hora del servidor
+        ahora=datetime.datetime.now()
+        
+        # buscamos si el rut o el rut provisiorio ya existen
+        rutV=preUser.documento
+
+        # verificamos is el usuario existe 
+        paso=2
+        nRecordUserExist=self.db.query(UsuarioModel).filter(UsuarioModel.id == idUser).count()
+
+        if (nRecordUserExist):
+
+            # contamos si existe un rut identico en la base de datos con otro id
+            paso=3
+            nRecordUserRut = self.db.query(UsuarioModel).filter(and_(UsuarioModel.rut == rutV ,UsuarioModel.id != idUser)).count()
+
+
+            # contamos si existe un rut identico en la base de datos 
+            paso=4
+            nRecordUserRutProvisiorio = self.db.query(UsuarioModel).filter(and_(UsuarioModel.rut_provisorio == rutV ,UsuarioModel.id != idUser)).count()        
+
+            #verificamos si existe o no el rut y el rutprovisorio
+            if ((nRecordUserRut > 0 ) or (nRecordUserRutProvisiorio > 0)):
+                # el rut ya existe
+                paso=5
+                userExistsUserRut = self.db.query(UsuarioModel).filter(UsuarioModel.rut == rutV).first()
+                return ({"result":"-1","estado":"Este Documento ya existe en la Base de Datos, no puede volver a asignarlo a otro empleado","user": userExistsUserRut})                
+
+            #area de validacion
+            rutOk=False
+            nombresOk=False
+            apellidosOk=False
+            correoOk=False
+
+            paso=6
+            rutOk=ValidationController.validarRut(preUser.documento)
+            paso=7
+            nombresOk=ValidationController.validar_nombre(preUser.nombres)
+            paso=8
+            apellidosOk=ValidationController.validar_nombre(preUser.apellidos)
+            paso=9
+            correoOk=ValidationController.validarEmail(preUser.correo)
+
+            if (rutOk and  nombresOk and apellidosOk  and correoOk):
+                try:
+                    paso=10
+                    userExistsUser=self.db.query(UsuarioModel).filter(UsuarioModel.id == idUser).first()
+                
+                    userExistsUser.rut=preUser.documento,
+                    userExistsUser.nombres = preUser.nombres.upper().strip(),
+                    userExistsUser.apellido_paterno = preUser.apellidos.upper().strip(),
+                    userExistsUser.updated=ahora,
+                    userExistsUser.updater_user=userUpdater
+                    
+                    paso=11
+                    self.db.commit()
+
+                except ValueError as e:
+                    return( {"result":"-3","cadenaError": f"Error {str(e)} paso {paso}"})
+                        
+                    
+                try:
+                    paso=12
+                    # actyalizamos  el registro de contacto
+                    userContactExist=self.db.query(contactUserModel).filter(contactUserModel.user_id==idUser).first()
+                    userContactExist.email=preUser.correo,
+                    userContactExist.updated=ahora,
+                    userContactExist.updater_user=userUpdater
+
+                    paso=13
+                    self.db.commit()
+
+                    return ({"result":"1","estado":"Actualizado"})
+
+                except ValueError as e:
+                    return( {"result":"-1","cadenaError": f"Error {str(e)} paso {paso}"})
+
+            else:
+                cadenaError="Error en los formatos de los siguientes datos:"
+                if (not rutOk):
+                    cadenaError = cadenaError + " Rut invalido"        
+                if (not nombresOk):
+                    cadenaError=cadenaError + " Nombres contiene caracateres inválidos"    
+                if (not apellidosOk):
+                    cadenaError=cadenaError + " Apellidos contiene caracateres inválidos"  
+                if (not correoOk):
+                    cadenaError=cadenaError + " El correo está mal formateado"                                        
+
+                return ({"result":"-2","estado":f"Hay errores en sus datos {cadenaError}"})        
+        else:
+            # usuario no encontrado
+            return ({"result":"-3","estado":"Usuario no existe"}) 
+            
+    
 
     #metodo para insertar  los datos personales del usuario   
     # @params usuario: esquema de los datos del usuario que se desea insertar       
@@ -1394,9 +1401,40 @@ class userController():
             except ValueError as e:
                 # ocurrió un error devolvemos el error
                 return( {"result":"-1","cadenaError": f"Error {str(e)} paso {paso}"})
+            
+
+    #metodo para consultar los datos de Pago por user_id
+    def get_datos_pago_userid(self,userId:int):
+        paso=1
+        # buscamos si este existe esta sede
+        nRecord = self.db.query(DatosPagoModel).filter(DatosPagoModel.user_id == userId).count()
+        
+        if (nRecord == 0):
+            # no existen datos laborales de este usuario
+            return ({"result":"-2","estado":"No record found"})
+        else:
+            # se extraen los datos laborales de este usuario
+            try:
+                DatosPagoExits = self.db.query(DatosPagoModel).filter(DatosPagoModel.user_id == userId).first()                  
+                # devolvemos los datos laborales
+                return ({"result":"1","estado":"Se consiguieron los Datos de Pago","data":DatosPagoExits})
+            except ValueError as e:
+                # ocurrió un error devolvemos el error
+                return( {"result":"-1","cadenaError": f"Error {str(e)} paso {paso}"})
   
 
-    # metod que permite asignar un usuario a un grupo
+    # metodo que permite asignar un usuario a una sociedad
+    def asignate_user_society(self):
+        return( {"result":"1","estado":"Usuario asignado a una sociedad "})  
+    
+    
+
+    # metodo que permite asignar un usuario a un departamento
+    def asignate_user_departament(self):
+        return( {"result":"1","estado":"Usuario asignado a un departamento"})  
+
+
+   # metod que permite asignar un usuario a un grupo
     # @params userGroup : Esquema de datos que permitye registrar una asginacion de usuarios a un grupo
     # @params userUpdater: id del Usuario que efectua la  asignacion a un grupo            
     # @params idGroup: id del Grupo al cual se asi8gna el empleado            
@@ -1441,7 +1479,8 @@ class userController():
             except ValueError as e:
                 # ocurrio un error y devolvemos el estado
                 return( {"result":"-3","cadenaError": f"Error {str(e)} paso {paso}"})                
-                
+   
+
 
     # metod que permite consultar a que grupo está asignado un usuario
     # @params userId : Id del usuario que se está consultando
@@ -1463,6 +1502,69 @@ class userController():
         except ValueError as e:
             # ocurrio un error y devolvemos el estado
             return( {"result":"-3","cadenaError": f"Error {str(e)} paso {paso}"})           
+
+
+    #metodo para actualizar el grupo al cual pertence un usuario
+    # @params userId: Id del usuario que se actualizara
+    # @updaterUserId: id del usuario que está actulizando
+    # @idGroup: Id del grup al acual se movera el usuario
+    def update_user_group (self,updaterUserId,idGroup,id):
+        # buscamos si existe una asginacion  previa
+        paso=1
+        userId=id
+
+        paso=2
+        nRecordUserGroup=self.db.query(UsuariosGruposEmpleadoModel).filter(UsuariosGruposEmpleadoModel.user_id==userId).count()
+
+        if (nRecordUserGroup== 0):
+            # no esta asignado a un grupo, no puede actuslizarlo
+            return ({"result":"-2","estado":"Este empleado no esta asignado a un grupo de empleados"})
+        else:
+            # esta asignado se puede actulizar
+            try:
+                # ubicamos el registro de usuarios grupo actual
+                paso=3
+                usuarioGroupExists=self.db.query(UsuariosGruposEmpleadoModel).filter(UsuariosGruposEmpleadoModel.user_id==userId).first()
+
+                #creamos el historico del usuariso grupos 
+                paso=4
+                self.create_history_user_group(usuarioGroupExists,"Actualizacion de un usuario a un nuevogrupo")  
+
+                #actualizamos el registro    
+                paso=5
+                usuarioGroupExists.grupo_empleados_id=idGroup
+                usuarioGroupExists.updater_user=updaterUserId
+                usuarioGroupExists.updated=datetime.datetime.now()              
+                
+                # confirmamos los cambios
+                paso=6
+                self.db.commit()  
+                '''
+                sociedad_id=usuarioGrupo.sociedad_id,
+                grupo_empleados_id=usuarioGrupo.grupo_empleados_id,
+                user_id=usuarioGrupo.user_id,
+                created=usuarioGrupo.created,
+                updated=usuarioGrupo.updated,
+                creator_user = usuarioGrupo.creator_user,
+                updater_user=usuarioGrupo.updater_user,                
+                '''
+                data={
+                    "id":usuarioGroupExists.id,
+                    "sociedad_id":usuarioGroupExists.sociedad_id,
+                    "grupo_empleados_id":usuarioGroupExists.grupo_empleados_id,
+                    "user_id":usuarioGroupExists.user_id,
+                    "created":usuarioGroupExists.created,
+                    "updated":usuarioGroupExists.updated,
+                    "creator_user":usuarioGroupExists.creator_user,
+                    "updater_user":usuarioGroupExists.updater_user
+                }
+
+                return( {"result":"1","estado":"Usuario asignado a un nuevo grupo","data":data})  
+
+            except ValueError as e:
+                # ocurrio un error y devolvemos el estado
+                return( {"result":"-3","cadenaError": f"Error {str(e)} paso {paso}"})         
+        
 
     # metodo para subir datos masivos de usuarios al servidor
     # @params creatorUserId: usuario que subio el archivo
@@ -1828,7 +1930,26 @@ class userController():
                                 else:    
                                     result9 = None
                                 
-                                #datos APV
+                                #datos Prevision Salud
+                                '''
+                                Id_Prev_Salud=row[22]
+                                Pactado_Salud=row[23]
+                                IdTipoContrato=row[24]                                
+                                '''
+                                if (Id_Prev_Salud is not None):
+                                    usuarioPrevision=UsuariosPrevicionSaludSchema(
+                                        user_id=newUserId ,
+                                        pactado=Pactado_Salud,
+                                        prevision_salud_id= Id_Prev_Salud,
+                                        tipo_contrato= IdTipoContrato
+                                    )
+                                    result10=UsuariosPrevisionSaludController.create_usuario_prevision_salud(self,creatorUserId,usuarioPrevision)
+                                else:
+                                    result10=None    
+                                
+                                
+                                #datos asignaciones Colacion, Movilizacion, Familiar
+                                
                                 
                                 #insertamos datos de estudio
                                 
@@ -1874,12 +1995,19 @@ class userController():
                                     estatusError= ", No se procesaron AFC" 
                                     
                                 if (result9 is not None):
-                                    if (result8["result"]=="1"):                                        
+                                    if (result9["result"]=="1"):                                        
                                         estatusOk = estatusOk + ", AFP"
                                     else:   
                                         estatusError= ", No se procesaron AFP"  
                                                                              
-                            
+                                if (result10 is not None):
+                                    if (result10["result"]=="1"):                                        
+                                        estatusOk = estatusOk + ", Prevision Salud"
+                                    else:   
+                                        estatusError= ", No se procesaron datos de Prevision Salud"  
+                                        
+                                        
+                                                                    
                             elif (result['result']=="-2"):
                                 estatusOk=" "
                                 estatusError="No se insertaron ninguno de los datos del empleado. Ya existe este username en el sistema"                        

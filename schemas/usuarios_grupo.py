@@ -1,5 +1,5 @@
 '''
-Esquema de datos que define a la tabla Sedes
+Esquema de datos que define a la tabla Usuarios Grupos
 Created 2024-01
 '''
 from pydantic import BaseModel, Field

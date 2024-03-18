@@ -62,7 +62,6 @@ from models.historico_cajas_compensacion import HistricoCajasCompensacion as His
 from schemas.cajas_compensacion import CajasCompensacion as CajasCompensacionSchema
 
 
-
 # esto representa los metodos implementados en la tabla
 class CajasCompensacionController():
     # metodo constructor que requerira una instancia a la Base de Datos
