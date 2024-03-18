@@ -84,7 +84,6 @@ from models.historico_datos_pago import HistoricoDatosPago as HistoricoDatosPago
 from schemas.datos_pago import DatosPago as DatosPagoSchema
 
 
-
 # esto representa los metodos implementados en la tabla
 class DatosPagoController():
     # metodo constructor que requerira una instancia a la Base de Datos
@@ -105,7 +104,8 @@ class DatosPagoController():
                 user_id=datosPago.user_id,
                 medio=datosPago.medio,
                 banco_id=datosPago.banco_id,                
-                tipo_cuenta=datosPago.tipo_cuenta,                
+                tipo_cuenta=datosPago.tipo_cuenta, 
+                numero_cuenta=datosPago.numero_cuenta,               
                 created=datosPago.created,
                 updated=datosPago.updated,
                 creator_user=datosPago.creator_user,
@@ -149,7 +149,8 @@ class DatosPagoController():
                     user_id=datosPago.user_id,
                     medio=datosPago.medio,
                     banco_id=datosPago.banco_id,                
-                    tipo_cuenta=datosPago.tipo_cuenta,                
+                    tipo_cuenta=datosPago.tipo_cuenta,
+                    numero_cuenta=datosPago.numero_cuenta,                
                     created=ahora,
                     updated=ahora,
                     creator_user = userCreatorId,
@@ -169,6 +170,7 @@ class DatosPagoController():
                     "medio":newDatosPago.medio,
                     "banco_id":newDatosPago.banco_id,
                     "tipo_cuenta":newDatosPago.tipo_cuenta,
+                    "numero_cuenta":newDatosPago.numero_cuenta,
                     "created": newDatosPago.created.strftime("%Y-%m-%d %H:%M:%S"),  
                     "updated":newDatosPago.updated.strftime("%Y-%m-%d %H:%M:%S"),  
                     "creator_user":newDatosPago.creator_user,
@@ -255,6 +257,7 @@ class DatosPagoController():
                 datosPagoExists.medio=datosPago.medio,
                 datosPagoExists.banco_id=datosPago.banco_id,                
                 datosPagoExists.tipo_cuenta=datosPago.tipo_cuenta,  
+                datosPagoExists.numero_cuenta=datosPago.numero_cuenta,  
                 datosPagoExists.updated=ahora,
                 datosPagoExists.updater_user=userUpdaterId               
 
@@ -267,6 +270,7 @@ class DatosPagoController():
                     "medio":datosPagoExists.medio,
                     "banco_id":datosPagoExists.banco_id,
                     "tipo_cuenta":datosPagoExists.tipo_cuenta,                              
+                    "numero_cuenta":datosPagoExists.numero_cuenta,  
                     "created":datosPagoExists.created.strftime("%Y-%m-%d %H:%M:%S"),
                     "updated":datosPagoExists.updated.strftime("%Y-%m-%d %H:%M:%S"),
                     "creator_user":datosPagoExists.creator_user,

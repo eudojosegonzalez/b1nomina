@@ -206,7 +206,7 @@ class FilesUserController():
 
   # metodo para consultar un archivo por Id
     # @params fileId: id del archivo del Usuario que se desea consultar
-    def list_files_users(self, userId):
+    def list_files_users(self, userId, page, records):
 
         # verificamos que el usuario tenga archivos registrados bajo su ID
         nRecordFilesUser= self.db.query(ArchivosUsuariosModel).filter(ArchivosUsuariosModel.user_id == userId).count()
@@ -230,8 +230,21 @@ class FilesUserController():
         if (nRecordFilesUser > 0):
             try:
                 # Buscamos los archivos del usuario
-                resultado = self.db.query(ArchivosUsuariosModel).filter(ArchivosUsuariosModel.user_id == userId).all()
-          
+                consulta = self.db.query(ArchivosUsuariosModel).filter(ArchivosUsuariosModel.user_id == userId)
+                ''' resultado={
+                    "id":result.id,
+                    "user_id":result.user_id,
+                    "nombre":result.nombre,
+                    "url":result.url,
+                    "created":result.created,
+                    "updated": result.updated,
+                    "creator_user":result.creator_user,
+                    "updater_user":result.updater_user,
+                    "absolute_path":"file://"+app_dir+result.url
+                }'''
+                consulta = consulta.limit(records)
+                consulta = consulta.offset(records * (page - 1))
+                resultado=consulta.all()            
                 if (resultado):
                     return ({"result":"1","estado":"Archivo encontrado","resultado":resultado })                            
                 else:

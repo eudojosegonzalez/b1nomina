@@ -1,5 +1,5 @@
 '''
-Este archivo contiene las funciones básicas del CRUD de Ubicacion del Usuario
+Este archivo contiene las funciones básicas del CRUD de AFC del Usuario
 Created 2023-12
 '''
 '''

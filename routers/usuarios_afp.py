@@ -55,7 +55,7 @@ usuarios_afp_router = APIRouter(prefix="/V1.0")
 # ruta para crear los datos de contacto de un usuario
 @usuarios_afp_router.post ('/create_user_afp', 
 tags=["AFP Usuarios"], 
-#dependencies=[Depends(JWTBearer())],
+dependencies=[Depends(JWTBearer())],
 responses=
     { 
         201: {
@@ -139,7 +139,7 @@ def create_user_afp(usuarioAFP:UsuariosAFPSchema, userCreatorId:int = Query(ge=1
 # ruta para consultar los datos de ubicacion de un usuario por el Id
 @usuarios_afp_router.get ('/user_afp/{id}',
 tags=["AFP Usuarios"], 
-#dependencies=[Depends(JWTBearer())],
+dependencies=[Depends(JWTBearer())],
 responses=
     { 
         200: {
@@ -224,7 +224,7 @@ def get_user_afp(id: int  = Path(ge=1, le=os.getenv("MAX_ID_USERS")))->dict:
 # ruta para consultar los datos historicos de contacto de un usuario por el Id
 @usuarios_afp_router.get ('/user_afp/{id}/list_historico',
 tags=["AFP Usuarios"], 
-#dependencies=[Depends(JWTBearer())],
+dependencies=[Depends(JWTBearer())],
 responses=
     { 
         201: {
@@ -311,7 +311,7 @@ def list_history_user_afp(id: int = Path(ge=1, le=os.getenv("MAX_ID_USERS")))->d
 # ruta para actualizar  los datos de contacto de un usuario por el Id
 @usuarios_afp_router.put ('/user_afp/{id}/update', 
 tags=["AFP Usuarios"], 
-#dependencies=[Depends(JWTBearer())],
+dependencies=[Depends(JWTBearer())],
 responses=
     { 
         201: {

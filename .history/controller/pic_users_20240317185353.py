@@ -189,7 +189,7 @@ class PicUserController():
     def get_pic_user(self, fileId):
 
         # verificamos si existe el registro
-        nRecordFileUser= self.db.query(FotosUsuariosModel).filter(FotosUsuariosModel.user_id==fileId).count()
+        nRecordFileUser= self.db.query(FotosUsuariosModel).filter(FotosUsuariosModel.id==fileId).count()
 
         main_file = os.path.abspath(__file__)
         app_dir = os.path.dirname(main_file)+"/.."
@@ -207,7 +207,7 @@ class PicUserController():
         '''
         if (nRecordFileUser>0):
             # Obtener la dirección del servidor.
-            result= self.db.query(FotosUsuariosModel).filter(FotosUsuariosModel.user_id==fileId).first()
+            result= self.db.query(FotosUsuariosModel).filter(FotosUsuariosModel.id==fileId).first()
 
             resultado={
                 "id":result.id,
@@ -231,7 +231,7 @@ class PicUserController():
     # @param picId: Id que representa la clave primaria de la foto que se eliminará
     def delete_pic_user(self,userId:int):
         # buscamos el registro
-        nRecordFileUser = self.db.query(FotosUsuariosModel).filter(FotosUsuariosModel.user_id==userId).count()
+        nRecordFileUser = self.db.query(FotosUsuariosModel).filter(FotosUsuariosModel.id==userId).count()
 
         main_file = os.path.abspath(__file__)
         app_dir = os.path.dirname(main_file)+"/.."        
@@ -242,11 +242,12 @@ class PicUserController():
 
                 ruta_archivo=app_dir+"/"+filePicExists.url
 
-                self.db.delete(filePicExists)
+                self.db.add(filePicExists)
                 self.db.commit()
 
-                os.remove(ruta_archivo)
 
+                os.remove(ruta_archivo)
+                
                 return ({"result":"1","estado":"Archivo eliminado"})                
             except OSError as error:
                 return({"result":"-3","estado":f"Error al eliminar el archivo: {error} ruta {ruta_archivo}"})

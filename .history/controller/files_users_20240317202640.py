@@ -230,8 +230,19 @@ class FilesUserController():
         if (nRecordFilesUser > 0):
             try:
                 # Buscamos los archivos del usuario
-                resultado = self.db.query(ArchivosUsuariosModel).filter(ArchivosUsuariosModel.user_id == userId).all()
-          
+                consulta = self.db.query(ArchivosUsuariosModel).filter(ArchivosUsuariosModel.user_id == userId)
+                ''' resultado={
+                    "id":result.id,
+                    "user_id":result.user_id,
+                    "nombre":result.nombre,
+                    "url":result.url,
+                    "created":result.created,
+                    "updated": result.updated,
+                    "creator_user":result.creator_user,
+                    "updater_user":result.updater_user,
+                    "absolute_path":"file://"+app_dir+result.url
+                }'''
+                resultado=consulta.all()            
                 if (resultado):
                     return ({"result":"1","estado":"Archivo encontrado","resultado":resultado })                            
                 else:

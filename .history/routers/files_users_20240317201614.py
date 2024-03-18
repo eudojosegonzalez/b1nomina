@@ -7,6 +7,7 @@ import os
 #importamos la libreria para cargar los archivos de entorno
 import dotenv
 
+
 from fastapi import File, UploadFile
 from fastapi import APIRouter
 from fastapi import Path,Query, Depends
@@ -20,7 +21,7 @@ from fastapi.encoders import jsonable_encoder
 
 
 # importamos el controlador 
-from controller.pic_users import PicUserController
+from controller.files_users import FilesUserController
 
 
 #from middleware.error_handler import ErrorHandler
@@ -34,23 +35,22 @@ dotenv.load_dotenv()
 
 
 # esta variable define al router
-pic_user_router = APIRouter(prefix="/V1.0")
+files_user_router = APIRouter(prefix="/V1.0")
 
 # -------- Rutas Archivos Usuario ------------
-
-# Funcion para subir foto del profile de un usuario
-@pic_user_router.post ('/user/{id}/upload_pic_user',
-tags=['Fotos de Usuarios'],
+# Funcion para subir archivos al profile de un usuario
+@files_user_router.post ('/user/{id}/upload_file_users',
+tags=['Archivos de Usuarios'],
 dependencies=[Depends(JWTBearer())], 
 responses=
     { 
         201: {
-            "description": "Se subió una imagen de usuario al sistema",
+            "description": "Se subió un archivo de usuarios al sistema",
             "content": { 
                 "application/json":{
                     "example":
                         {
-                            "message":"Se subió una imagen de usuario al sistema",
+                            "message":"Se subió un archivo de usuarios al sistema",
                             "newUserId":"1"
                         }
                     } 
@@ -66,20 +66,8 @@ responses=
                         }
                     } 
                 }       
-            }, 
-        500: {
-            "description": "Su session ha expirado",
-            "content": { 
-                "application/json":
-                    { "example":
-                        {
-                            "message":"Su session ha expirado",
-                            "estado":"Signature has expired"
-                        }
-                    } 
-                }       
-            },                         
-        520: {
+            },                                                 
+          520: {
             "description": "Ocurrió un error que no pudo ser controlado",
             "content": { 
                 "application/json":
@@ -90,69 +78,55 @@ responses=
                         }
                     } 
                 }       
-            },  
-        521: {
+            },   
+          521: {
             "description": "Tipo de archivo no permitido",
             "content": { 
                 "application/json":
                     { "example":
                         {
                             "message":"Tipo de archivo no permitido",
-                            "estado":"System Error"
+                            'Archivos Permitidos': ['png','jpg','jpeg','gif','pdf']
                         }
                     } 
                 }       
-            },                                  
-        522: {
+            }, 
+          522: {
             "description": "El archivo es demasiado grande",
             "content": { 
                 "application/json":
                     { "example":
                         {
                             "message":"El archivo es demasiado grande",
-                            "estado":"System Error"
+                            "estado":"El archivo es demasiado grande, tamaño máximo permitido 20Mb"
                         }
                     } 
                 }       
-            },
-        523: {
-            "description": "El usuario ya posee una foto",
-            "content": { 
-                "application/json":
-                    { "example":
-                        {
-                            "message":"El usuario ya posee una foto",
-                            "estado":"System Error"
-                        }
-                    } 
-                }       
-            },
+            },                                             
     })
-async def pic_upload_user(creatorUserId : int = Query (ge=1, le=os.getenv("MAX_ID_USERS")) ,id : int = Path (ge=1, le=os.getenv("MAX_ID_USERS")),File : UploadFile=File())->dict:
+async def file_upload_user(creatorUserId:int = Query(ge=1, le=os.getenv("MAX_ID_USERS")), id:int = Path(ge=1, le=os.getenv("MAX_ID_USERS")), file: UploadFile=File())->dict:
     db = Session()
-    result=PicUserController(db).upload_pic_user(creatorUserId,id,File)
+    result=FilesUserController(db).upload_file_user(creatorUserId,id,file)
     # evaluamos el resultado
     estado=result['result']
 
     if (estado=="1") :
         # se inserto el registro sin problemas
-        newPicUserId=result["newPicUserId"]
-        return JSONResponse (status_code=201,content={"message":"Se subió una imagen de usuario al sistema","newPicUserId":newPicUserId})     
+        newFileUserId=result["newFileUserId"]
+        return JSONResponse (status_code=201,content={"message":"Se creo el archivo del usuario en el sistema","newfileUserId":newFileUserId})     
     elif  (estado=="-1"):
         return JSONResponse (status_code=521,content={"message":"Tipo de archivo no permitido","estado":result})    
     elif  (estado=="-2"):
-        return JSONResponse (status_code=522,content={"message":"El archivo es demasiado grande","estado":result})   
-    elif  (estado=="-4"):
-        picUser=result['picUser']
-        return JSONResponse (status_code=523,content={"message":"El usuario ya posee una foto","picUser":picUser})          
+        return JSONResponse (status_code=522,content={"message":"El archivo es demasiado grande","estado":result})        
     else:
         return JSONResponse (status_code=520,content={"message":"Ocurrió un error que no pudo ser controlado","estado":result})
 
 
+
 # Funcion para consultar los datos de un archivo de un usuario
-@pic_user_router.get (
- '/user/{id}/get_pic_user',
- tags=['Fotos de Usuarios'],
+@files_user_router.get (
+ '/user/get_file_user',
+tags=['Archivos de Usuarios'],
 dependencies=[Depends(JWTBearer())],
  responses=
         { 
@@ -207,10 +181,10 @@ dependencies=[Depends(JWTBearer())],
                 },                                                           
         }    
 )
-def get_pic_user(id:int = Path(ge=1, le=os.getenv("MAX_FILES_USERS")))->dict:
+def get_file_user(id:int = Path(ge=1, le=os.getenv("MAX_FILES_USERS")))->dict:
     db = Session()
     # almacenamos el listado de usarios en un resultset
-    result = PicUserController(db).get_pic_user(id)
+    result = FilesUserController(db).get_file_user(id)
     # debemnos convertir los objetos tipo BD a Json
     if (result):
         if (result["result"]=="1"):
@@ -223,19 +197,75 @@ def get_pic_user(id:int = Path(ge=1, le=os.getenv("MAX_FILES_USERS")))->dict:
     return JSONResponse(status_code=404,content={"message":"Usuario no encontrado"})  
 
 
-# Funcion para eliminar foto del profile de un usuario
-@pic_user_router.delete ('/user/{id}/delete_pic_user',
-tags=['Fotos de Usuarios'],
+
+# Funcion para listar los archivos de un usuario del sistema, se filtra por ID de usuario
+@files_user_router.get ('/user/{id}/list_files_users',
+tags=['Archivos de Usuarios'],
+dependencies=[Depends(JWTBearer())], 
+responses=
+    { 
+        403: {
+            "description": "Forbiden",
+            "content": { 
+                "application/json":{ 
+                    "example":
+                        {
+                            "message":"Not authenticated"
+                        }
+                    } 
+                }       
+            },    
+        404: {
+            "description": "No hay registros que mostrar",
+            "content": { 
+                "application/json":{ 
+                    "example":
+                        {
+                            "message":"No hay registros que mostrar"
+                        }
+                    } 
+                }       
+            },                       
+        500: {
+            "description": "Su session ha expirado",
+            "content": { 
+                "application/json":
+                    { "example":
+                        {
+                            "message":"Su session ha expirado",
+                            "estado":"Signature has expired"
+                        }
+                    } 
+                }       
+            },                         
+    }
+)
+async def list_files_users(id: int = Path (ge=1, le=os.getenv("MAX_ID_USERS")),page : int = 1, records : int = 20)->dict:
+    db = Session()
+    # almacenamos el listado de usarios en un resultset
+    result = FilesUserController(db).list_files_users(id,page,records)
+
+    # debemnos convertir los objetos tipo BD a Json
+    if (result):
+        return JSONResponse(status_code=200,content=jsonable_encoder(result))    
+    else:
+        return JSONResponse(status_code=404,content={"message":"No hay registros que mostrar"})    
+
+
+
+# Funcion para eliminar archivos al profile de un usuario
+@files_user_router.delete ('/user/{id}/delete_file_users/{id_file}',
+tags=['Archivos de Usuarios'],
 dependencies=[Depends(JWTBearer())], 
 responses=
     { 
         201: {
-            "description": "Se subió una imagen de usuarios al sistema",
+            "description": "Se subió un archivo de usuarios al sistema",
             "content": { 
                 "application/json":{
                     "example":
                         {
-                            "message":"Se subió una imagen de usuarios al sistema",
+                            "message":"Se subió un archivo de usuarios al sistema",
                             "newUserId":"1"
                         }
                     } 
@@ -251,7 +281,7 @@ responses=
                         }
                     } 
                 }       
-            },
+            },  
         500: {
             "description": "Su session ha expirado",
             "content": { 
@@ -263,7 +293,7 @@ responses=
                         }
                     } 
                 }       
-            },                          
+            },                        
         520: {
             "description": "No se pudo elimiar el registro",
             "content": { 
@@ -275,7 +305,7 @@ responses=
                         }
                     } 
                 }       
-            },         
+            },           
         521: {
             "description": "Ocurrió un error que no pudo ser controlado",
             "content": { 
@@ -287,12 +317,14 @@ responses=
                         }
                     } 
                 }       
-            },                       
+        },                       
+
+
     })
-def pic_delete_user(id : int = Path (ge=1, le=os.getenv("MAX_ID_USERS"))):
+def file_delete_user():
     db = Session()
     # almacenamos el listado de usarios en un resultset
-    result = PicUserController(db).delete_pic_user(id)
+    result = FilesUserController(db).delete_file_user(id)
     # debemnos convertir los objetos tipo BD a Json
     if (result):
         if (result["result"]=="1"):
@@ -300,11 +332,10 @@ def pic_delete_user(id : int = Path (ge=1, le=os.getenv("MAX_ID_USERS"))):
             return JSONResponse(status_code=201,content=jsonable_encoder(data))    
         elif (result["result"]=="-3"):
             data=result["estado"]
-            return JSONResponse(status_code=521,content=jsonable_encoder(data))    
+            return JSONResponse(status_code=520,content=jsonable_encoder(data))    
         else:
             return JSONResponse(status_code=404,content={"message":"Archivo no encontrado"})     
    
-    return JSONResponse(status_code=520,content={"message":"Ocurrió un error que no pudo ser controlado"})  
-
+    return JSONResponse(status_code=521,content={"message":"Ocurrió un error que no pudo ser controlado"})  
 
 

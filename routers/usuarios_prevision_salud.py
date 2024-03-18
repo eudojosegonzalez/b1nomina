@@ -1,5 +1,5 @@
 '''
-Rutas de AFC de usuario
+Rutas de Prevision Salud del usuario
 Created: 2024-03
 '''
 
@@ -30,12 +30,12 @@ from utils.jwt_managr import create_token,validate_token
 
 
 # importamos el controlador 
-from controller.usuarios_afc import UsuariosAFCController
+from controller.usuarios_prevision_salud import UsuariosPrevisionSaludController
 
 
 
 #importamos el esquema de datos para utilizarlo como referencia de datos a la hora de capturar data
-from schemas.usuarios_afc import UsuariosAFC as UsuariosAFCSchema
+from schemas.usuarios_prevision_salud import UsuariosPrevicionSalud as UsuariosPrevicionSaludSchema
 
 
 #from middleware.error_handler import ErrorHandler
@@ -49,13 +49,13 @@ dotenv.load_dotenv()
 
 
 # esta variable define al router
-usuarios_afc_router = APIRouter(prefix="/V1.0")
+usuarios_prevision_salud_router = APIRouter(prefix="/V1.0")
 
 # -------- Rutas Ubicación Usuario  ------------
 # ruta para crear los datos de contacto de un usuario
-@usuarios_afc_router.post ('/create_user_afc', 
-tags=["AFC Usuarios"], 
-dependencies=[Depends(JWTBearer())],
+@usuarios_prevision_salud_router.post ('/create_usuario_prevision_salud', 
+tags=["Prevision Salud Usuarios"], 
+#dependencies=[Depends(JWTBearer())],
 responses=
     { 
         201: {
@@ -119,36 +119,36 @@ responses=
             },                       
     }
 )
-def create_user_afc(usuarioAfC:UsuariosAFCSchema, userCreatorId:int = Query(ge=1, le=os.getenv("MAX_ID_USERS")))->dict:
+def create_usuario_prevision_salud(usuarioPrevisionSalud:UsuariosPrevicionSaludSchema, userCreatorId:int = Query(ge=1, le=os.getenv("MAX_ID_USERS")))->dict:
     db = Session()
-    result=UsuariosAFCController(db).create_usuario_afc(userCreatorId,usuarioAfC)
+    result=UsuariosPrevisionSaludController(db).create_usuario_prevision_salud(userCreatorId,usuarioPrevisionSalud)
     # evaluamos el resultado
     estado=result['result']
 
     if (estado=="1") :
         # se inserto el registro sin problemas
-        newUsuarioAFC=result["UsuarioAFC"]
-        return JSONResponse (status_code=201,content={"message":"Se creo el regfistro AFC del usuario en el sistema","newUsuarioAFC":jsonable_encoder(newUsuarioAFC)})     
+        UsuarioPrevisionSalud=result["data"]
+        return JSONResponse (status_code=201,content={"message":"Se creo el registro la Prevision Salud del usuario en el sistema","newUsuarioPrevisionSalud":jsonable_encoder(UsuarioPrevisionSalud)})     
     elif (estado=="-2"):
-        usuarioAFC=result["usuarioAFC"]
-        return JSONResponse (status_code=521,content={"message":"Ya existen los datos de AFC de este usuario, no puede volver a crearlos","usuarioAFC":jsonable_encoder(usuarioAFC)})    
+        UsuarioPrevisionSalud=result["data"]
+        return JSONResponse (status_code=521,content={"message":"Ya existen los datos de la Prevision Salud de este usuario, no puede volver a crearlos","UsuarioPrevisionSalud":jsonable_encoder(UsuarioPrevisionSalud)})    
     else:
         return JSONResponse (status_code=520,content={"message":"Ocurrió un error que no pudo ser controlado","estado":result})              
 
 
 # ruta para consultar los datos de ubicacion de un usuario por el Id
-@usuarios_afc_router.get ('/user_afc/{id}',
-tags=["AFC Usuarios"], 
-dependencies=[Depends(JWTBearer())],
+@usuarios_prevision_salud_router.get ('/usuario_prevision_salud/{id}',
+tags=["Prevision Salud Usuarios"], 
+#dependencies=[Depends(JWTBearer())],
 responses=
     { 
-        201: {
-            "description": "Se consiguieron los datos de AFC del usuario",
+        200: {
+            "description": "Se consiguieron los datos de Prevision Salud del usuario",
             "content": { 
                 "application/json":{
                     "example":
                         {
-                            "message":"Se consiguieron los datos de AFC del usuario",
+                            "message":"Se consiguieron los datos de Prevision Salud del usuario",
                             "ubicacionUser":"{'id': 1,'user_id': 100,'email': 'example@micorreo.com','fijo': '226656168','movil' : '939024766','created':'2023-12-01 09:00:01','updated':'2023-12-10 19:00:01','creator_user':'1','updater_user':'10'}"
                         }
                     } 
@@ -203,37 +203,37 @@ responses=
             },                       
     }                     
 )
-def get_user_afc(id: int  = Path(ge=1, le=os.getenv("MAX_ID_USERS")))->dict:
+def get_usuario_prevision_salud(id: int  = Path(ge=1, le=os.getenv("MAX_ID_USERS")))->dict:
     db = Session()
-    result=UsuariosAFCController(db).get_usuario_afc(id)
+    result=UsuariosPrevisionSaludController(db).get_usuario_prevision_salud(id)
     # evaluamos el resultado
     estado=result['result']
 
     if (estado=="1") :
-        # se consiguieron los datos de AFC del usuario
-        UsuarioAFC=result["UsuarioAFC"]
-        return JSONResponse (status_code=201,content={"message":"Se consiguieron los datos de AFC del usuario en el sistema","UsuarioAFC":UsuarioAFC})     
+        # se consiguieron los datos de Prevision Salud del usuario
+        data=result["data"]
+        return JSONResponse (status_code=200,content={"message":"Se consiguieron los datos de Prevision Salud del usuario en el sistema","UsuarioPrevisionSalud":data})     
     elif (estado=="-2"):
         # no se consiguieron los datos de contacto del cliente
-        return JSONResponse (status_code=404,content={"message":"No se consiguieron los datos de AFC del usuario","estado":result}) 
+        return JSONResponse (status_code=404,content={"message":"No se consiguieron los datos de Prevision Salud del usuario","estado":result}) 
     else:     
         # ocurrió un error a nivel de servidor
         return JSONResponse (status_code=520,content={"message":"Ocurrió un error que no pudo ser controlado","estado":estado}) 
 
 
 # ruta para consultar los datos historicos de contacto de un usuario por el Id
-@usuarios_afc_router.get ('/user_afc/{id}/list_historico',
-tags=["AFC Usuarios"], 
-dependencies=[Depends(JWTBearer())],
+@usuarios_prevision_salud_router.get ('/usuario_prevision_salud/{id}/list_historico',
+tags=["Prevision Salud Usuarios"], 
+#dependencies=[Depends(JWTBearer())],
 responses=
     { 
         201: {
-            "description": "Se consiguieron los datos de AFC del usuario",
+            "description": "Se consiguieron los datos de Prevision Salud del usuario",
             "content": { 
                 "application/json":{
                     "example":
                         {
-                            "message":"Se consiguieron los datos de AFC del usuario",
+                            "message":"Se consiguieron los datos de Prevision Salud del usuario",
                             "contactUser":"{'id': 1,'user_id': 100,'email': 'example@micorreo.com','fijo': '226656168','movil' : '939024766','created':'2023-12-01 09:00:01','updated':'2023-12-10 19:00:01','creator_user':'1','updater_user':'10'}"
                         }
                     } 
@@ -251,12 +251,12 @@ responses=
                 }       
             },   
         404: {
-            "description": "No existen los datos de AFC de este usuario",
+            "description": "No existen los datos de Prevision Salud de este usuario",
             "content": { 
                 "application/json":
                     { "example":
                         {
-                            "message":"No existen los datos de AFC de este usuario",
+                            "message":"No existen los datos de Prevision Salud de este usuario",
                             "estado":"No record found"
                         }
                     } 
@@ -288,19 +288,19 @@ responses=
             },                       
     }                     
 )
-def list_history_user_afc(id: int = Path(ge=1, le=os.getenv("MAX_ID_USERS")))->dict:
+def list_history_usuario_prevision_salud(id: int = Path(ge=1, le=os.getenv("MAX_ID_USERS")))->dict:
     db = Session()
-    result=UsuariosAFCController(db).list_history_usuario_afc(id)
+    result=UsuariosPrevisionSaludController(db).list_history_usuario_prevision_salud(id)
     # evaluamos el resultado
     estado=result['result']
 
     if (estado=="1") :
         # se consiguieron los datos históricos de ubicacion del usuario
-        data=result["listHistoryUsarioAFC"]
+        data=result["data"]
         return JSONResponse (status_code=201,content=jsonable_encoder(data))     
     elif (estado=="-2"):
         # no se consiguieron los datos de contacto del cliente
-        return JSONResponse (status_code=404,content={"message":"No se consiguieron los datos historicos de AFC del usuario","estado":result}) 
+        return JSONResponse (status_code=404,content={"message":"No se consiguieron los datos historicos de Prevision Salud del usuario","estado":result}) 
     else:     
         # ocurrió un error a nivel de servidor
         return JSONResponse (status_code=520,content={"message":"Ocurrió un error que no pudo ser controlado","estado":estado}) 
@@ -309,9 +309,9 @@ def list_history_user_afc(id: int = Path(ge=1, le=os.getenv("MAX_ID_USERS")))->d
 
 
 # ruta para actualizar  los datos de contacto de un usuario por el Id
-@usuarios_afc_router.put ('/user_afc/{id}/update', 
-tags=["AFC Usuarios"], 
-dependencies=[Depends(JWTBearer())],
+@usuarios_prevision_salud_router.put ('/usuario_prevision_salud/{id}/update', 
+tags=["Prevision Salud Usuarios"], 
+#dependencies=[Depends(JWTBearer())],
 responses=
     { 
         201: {
@@ -375,19 +375,19 @@ responses=
             },                       
     }                          
 )
-def update_user_afc(usuarioAfC:UsuariosAFCSchema,userUpdaterId:int = Query(ge=1, le=os.getenv("MAX_ID_USERS")) , id : int= Path (ge=1, le=os.getenv("MAX_ID_USERS")))->dict:
+def update_usuario_prevision_salud(usuarioPrevisionSalud:UsuariosPrevicionSaludSchema,userUpdaterId:int = Query(ge=1, le=os.getenv("MAX_ID_USERS")) , id : int= Path (ge=1, le=os.getenv("MAX_ID_USERS")))->dict:
     db = Session()
-    result=UsuariosAFCController(db).update_usuario_afc(userUpdaterId, usuarioAfC, id)
+    result=UsuariosPrevisionSaludController(db).update_usuario_prevision_salud(userUpdaterId, usuarioPrevisionSalud, id)
     # evaluamos el resultado
     estado=result['result']
 
     if (estado=="1") :
         # se actualizó el registro sin problemas
-        UsuarioAFC=result["UsuarioAFC"]
-        return JSONResponse (status_code=201,content={"message":f"Se actualizó el registro AFC del usuario en el sistema","UsuarioAFC":jsonable_encoder(UsuarioAFC)})     
+        UsuarioPrevisionSalud=result["data"]
+        return JSONResponse (status_code=201,content={"message":f"Se actualizó el registro de Prevision Salud del usuario en el sistema","UsuarioPrevisionSalud":jsonable_encoder(UsuarioPrevisionSalud)})     
     elif (estado=="-2"):
         # no se consiguieron los datos de contacto del cliente
-        return JSONResponse (status_code=404,content={"message":"No se consiguieron los datos de AFC del usuario","estado":result}) 
+        return JSONResponse (status_code=404,content={"message":"No se consiguieron los datos de Prevision Salud del usuario","estado":result}) 
     else:     
         # ocurrió un error a nivel de servidor
         return JSONResponse (status_code=520,content={"message":"Ocurrió un error que no pudo ser controlado","estado":estado})     

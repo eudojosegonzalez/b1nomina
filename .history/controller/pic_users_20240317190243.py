@@ -242,7 +242,7 @@ class PicUserController():
 
                 ruta_archivo=app_dir+"/"+filePicExists.url
 
-                self.db.delete(filePicExists)
+                self.db.add(filePicExists)
                 self.db.commit()
 
                 os.remove(ruta_archivo)
