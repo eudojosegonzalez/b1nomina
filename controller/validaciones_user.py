@@ -49,7 +49,17 @@ class ValidationController():
         patron = re.compile(r'^[a-zA-ZÁÉÍÓÚÑÜáéíóúñü ]+$')
         return patron.match(nombre) is not None    
     
+
+    def validar_nombre2(nombre):
+        # Patrón de regex que incluye letras mayúsculas y minúsculas, acentos, diéresis y virgulillas
+        patron = r'^[a-zA-ZáéíóúÁÉÍÓÚñÑüÜäëïöäüöÄËÏÖÄÜÖ ]+$'
         
+        # Utiliza el método match() para verificar si el nombre coincide con el patrón
+        if re.match(patron, nombre):
+            return True
+        else:
+            return False
+    
     # funcion para validar el email    
     def validarEmail( email):
         """

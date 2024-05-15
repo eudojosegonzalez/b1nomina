@@ -162,7 +162,7 @@ class DatosPagoController():
                 self.db.commit()
 
                 #creamos el registro historico de los datos de pago es
-                self.create_historico_datos_pago(newDatosPago,"Se creó un Dato de pago en el sistema")
+                DatosPagoController.create_historico_datos_pago(self,newDatosPago,"Se creó un Dato de pago en el sistema")
 
                 data={
                     "id":newDatosPago.id,

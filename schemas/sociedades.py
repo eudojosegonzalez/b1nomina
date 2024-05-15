@@ -13,7 +13,20 @@ class Sociedades(BaseModel):
     comuna_id : int = Field(ge=1, le=1000)
     ciudad : str = Field(min_length=3, max_length=250)
     icono : str = Field(min_length=3, max_length=250)
-
+    email : str = Field(min_length=0, max_length=250)
+    responsable : str = Field(min_length=0, max_length=150)
+    rut_responsable : str = Field(min_length=3, max_length=100) 
+    email_responsable : str = Field(min_length=0, max_length=250)    
+    telefono_responsable : str = Field(min_length=0, max_length=20)
+    banco_id : int = Field(ge=0, le=1000)
+    numero_cuenta : str = Field(min_length=0, max_length=100)
+    ocultar_email : int =Field (ge=0, le=1)
+    codigo_convenio : str = Field(min_length=0, max_length=100)
+    giro_empresa : str = Field(min_length=0, max_length=150)
+    razon_social : str = Field(min_length=0, max_length=150) 
+    mutual_id : int = Field(ge=1, le=1000)
+    porcentaje : float 
+    
     model_config = {
         "json_schema_extra": {
             "examples": [
@@ -25,7 +38,20 @@ class Sociedades(BaseModel):
                     "region_id": 1,
                     "comuna_id": 1101,
                     "ciudad":"Demo ciudad",
-                    'icono':''
+                    'icono':'',
+                    'email':'',
+                    'resposable':'',
+                    'rut_responsable':'',
+                    'email_responsable':'',
+                    'telefono_responsable':'',
+                    'banco_id':'0',
+                    'numero_cuenta':'',
+                    'ocultar_email':'0',
+                    'codigo_convenio' : '',
+                    'giro_empresa': '',
+                    'razon_social': '',
+                    'mutual_id' : 1,
+                    'porcentaje' : 0
                 }
             ]
         }

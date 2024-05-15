@@ -184,6 +184,130 @@ class PicUserController():
             return ({"result":"-1","estado":"archivo_no permitido","Archivos Permitidos":list(permitedExtensionPicUsers)})
         
 
+
+    # metodo para editar el  pic de usuario al servidor
+    # @params creatorUserId: usuario que subio el archivo
+    # @params userId: usuario al que pertenece el archivo
+    # @params file: archivo que se está subiendo al archivo
+    def edit_pic_user(self,creatorUserId,userId,file):
+        #obtenemos la fecha/hora del servidor
+        ahora=datetime.datetime.now()
+        paso=1
+        
+        main_file = os.path.abspath(__file__)
+        app_dir = os.path.dirname(main_file)+"/.."  
+
+        try:
+            # declaramos la ruta de almacenaje de las fotos del usuario    
+            paso=2        
+            ruta = os.getenv("PIC_USERS")
+
+            #diccionario que contiene los tipos archivos permitidos
+            paso=3
+            permitedExtensionFilesUsers=  os.getenv("PERMITED_EXTENSION_PIC_USERS") 
+            
+            #tamaño de los archivos permitidos en Megabytes 
+            #este valor esta expresado en Bytes = (n/1024/1024)Mb
+            paso=4
+            permitedSizeFilesUsers =  int(os.getenv("MAX_PERMITED_SIZE_FILES_USERS") ) 
+
+        except ValueError as e:
+                # ocurrio un error y devolvemos el estado
+                paso=5
+                return( {"result":"-3","error": str(e)})
+
+
+        # Guarda el archivo en el directorio "files_users"
+        try:
+            paso=6
+            slug = os.path.splitext(file.filename)[0]
+        except ValueError as e:
+            paso=7
+            # ocurrio un error y devolvemos el estado
+            return( {"result":"-3","error": str(e)})            
+
+        # Reemplaza los caracteres no deseados por caracteres seguros
+        paso=8
+        safeFilename = re.sub(r"[^a-zA-Z0-9_-]", "_", slug)+str(uuid.uuid4())
+
+        #path = os.path.join("files_users", file.filename)
+        try:
+            paso=9
+            path = os.path.join(ruta, f"{safeFilename}.{file.filename.split('.')[-1]}")
+        except ValueError as e:
+                # ocurrio un error y devolvemos el estado
+                return( {"result":"-3","cadenaError": f"Ocurrió el siguiente Error:{str(e)} Paso:{paso}"})            
+
+        
+        #devolvemos la extensión para verificr si se puede o no guardar el archivo
+        paso=10
+        fileExtension=file.filename.split('.')[-1]
+
+        #determinamos el tamaño del archivo
+        file_size = file.size
+
+        #verificamos que no exceda el tamaño máximo permitido
+        if (file_size > permitedSizeFilesUsers):
+            paso=11
+            # El archivo es demasiado grande
+            return ({"result":"-5","estado":f"El archivo es demasiado grande, tamaño máximo permitido {(permitedSizeFilesUsers/1024/1024)}Mb"})
+
+        if (fileExtension in permitedExtensionFilesUsers):
+            try:
+                #guardamos el archivo
+                paso=12
+                with open(path, "wb") as f:
+                    f.write(file.file.read())
+
+                # Guarda la ruta del archivo en la base de datos
+                paso=13
+                url = f"/{ruta}/{safeFilename}.{file.filename.split('.')[-1]}"
+
+                # determinamos si el CV del usuario existe 
+                paso=14
+                nRecordFileUser=  self.db.query(FotosUsuariosModel).filter(FotosUsuariosModel.user_id==userId).count()
+
+                if (nRecordFileUser>0):
+                    paso=15
+                    #existe actualizamos el url                     
+                    picUserExists =  self.db.query(FotosUsuariosModel).filter(FotosUsuariosModel.user_id==userId).first()
+
+                    #eliminamos  el archivo viejo
+                    archivoEliminar=app_dir+picUserExists.url
+
+                    paso=16
+                    #creamos el registro historico del contrato
+                    result2=PicUserController.create_historico_pic_user(self,picUserExists,'Actualizacion de foto del usuario')
+
+                    #actualizamos los datos
+                    paso=17
+                    picUserExists.url=url
+                    picUserExists.updater_user=creatorUserId
+                    picUserExists.updated=ahora
+
+                    paso=18
+                    self.db.commit()
+
+
+                    paso=20
+                    os.remove(archivoEliminar)          
+
+                    paso=21
+                    data=picUserExists.to_dict()          
+                    paso=22
+                    return ({"result":"1","estado":"Foto Actualizada", "cvUser":data})
+                else:
+                    return ({"result":"-1","estado":"El usuario no tiene Foto"})
+                
+            except ValueError as e:
+                    # ocurrio un error y devolvemos el estado
+                    return( {"result":"-3","cadenaError": f"Ocurrió el siguiente Error:{str(e)} Paso:{paso}"})   
+        else:
+            return ({"result":"-4","estado":"archivo_no permitido","Archivos Permitidos":list(permitedExtensionFilesUsers)}) 
+        
+
+        
+
     # metodo para consultar un archivo por Id
     # @params fileId: id del archivo del Usuario que se desea consultar
     def get_pic_user(self, fileId):
@@ -252,3 +376,42 @@ class PicUserController():
                 return({"result":"-3","estado":f"Error al eliminar el archivo: {error} ruta {ruta_archivo}"})
         else:
             return ({"result":"-1","estado":"Archivo no encontrado" })  
+        
+    # metodo para crear el preregistro de la foto de los usuarios
+    # @params userId: Usuario al que se le crea el preregistro de foto
+    # @params creatorUserId: usuario del sistema que crea al registro
+    def create_preregistro_pic(self,userId,creatorUserId):
+        paso=1
+        ahora=datetime.datetime.now()
+        try:
+            paso=2
+            '''
+            id = Column(BIGINT, primary_key=True, autoincrement=True)
+            user_id = Column(BIGINT, ForeignKey("Usuario.id", ondelete="RESTRICT", onupdate="CASCADE"), unique=True)
+            url = Column(TEXT, nullable=False)
+            created = Column (DateTime, nullable=False) #datetime NOT NULL,    
+            updated = Column (DateTime, nullable=False)  #datetime NOT NULL,
+            creator_user= Column(BIGINT, nullable=False) #user BIGINT NOT NULL,     
+            updater_user = Column(BIGINT, nullable=False) #user BIGINT NOT NULL, 
+            '''
+            newPIcUser=FotosUsuariosModel(
+                user_id=userId,
+                url='',
+                created=ahora,
+                updated=ahora,
+                creator_user=creatorUserId,
+                updater_user=creatorUserId
+            )
+            paso=3
+            self.db.add(newPIcUser)
+            paso=4
+            self.db.commit()
+            
+            #creamos el registro historico de la foto
+            paso=5
+            PicUserController.create_historico_pic_user(self,newPIcUser,"Se creo el preregistro de la foto del usuario")
+            
+            return( {"result":"1","estado":"Se creo el preregistro de fotos del usuario"})       
+        except ValueError as e:
+                # ocurrio un error y devolvemos el estado
+                return( {"result":"-1","cadenaError": f"Error {str(e)} paso {paso}"})        

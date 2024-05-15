@@ -54,3 +54,17 @@ class Usuario(Base):
     creator_user= Column(BIGINT, nullable=False) #user BIGINT NOT NULL,     
     updater_user = Column(BIGINT, nullable=False) #user BIGINT NOT NULL,  
 
+
+    #interface que permite extraer en forma de diccionario los datos personales
+    def to_dict_personal_data(self):
+        result = {
+            "user_id": self.id,
+            "rut": self.rut  ,
+            "nombres": self.nombres  ,
+            "apellido_paterno": self.apellido_paterno  ,
+            "fecha_nacimiento": self.fecha_nacimiento  ,
+            "sexo_id": self.sexo_id  ,
+            "estado_civil_id": self.estado_civil_id  ,
+            "nacionalidad_id": self.nacionalidad_id  
+        }
+        return (result)     

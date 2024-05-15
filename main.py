@@ -18,6 +18,8 @@ from routers.contacto import user_contact_router
 from routers.ubicacion import user_ubicacion_router
 from routers.files_users import files_user_router
 from routers.pic_users import pic_user_router
+from routers.cv_users import cv_user_router
+from routers.contrato_users import contrato_user_router
 from routers.bancarios_user import bancarios_user_router
 from routers.bancos import bancos_router
 from routers.afp import afp_router
@@ -26,6 +28,8 @@ from routers.basic_parameter import basic_parameter_router
 from routers.eventos import eventos_router
 from routers.nomina import nomina_router
 from routers.sociedades import sociedades_router
+from routers.bancarios_sociedad import bancarios_sociedad_router
+from routers.mutuales_sociedad import mutuales_sociedad_router
 from routers.sedes import sedes_router
 from routers.departamentos import departamentos_router
 from routers.grupos_empleados import grupos_empleados_router
@@ -36,6 +40,9 @@ from routers.unidades_pacto import unidades_pacto_router
 from routers.periodos import periodos_router
 from routers.categorias_configuracion import categorias_configuracion_router
 from routers.configuracion import configuracion_router
+from routers.centros_costos import centros_costos_router
+from routers.centralizaciones import centralizaciones_router
+from routers.grupos_centralizaciones import grupos_centralizaciones_router
 from routers.prevision_salud import prevision_salud_router
 from routers.cuentas_contables import cuentas_contables_router
 from routers.tipos_prestamos import tipos_prestamos_router
@@ -47,6 +54,7 @@ from routers.datos_pago import datos_pago_router
 from routers.usuarios_afc import usuarios_afc_router
 from routers.usuarios_afp import usuarios_afp_router
 from routers.usuarios_prevision_salud import usuarios_prevision_salud_router
+from routers.campos_adicionales import campos_adicionales_router
 
 #importamos el manejador de errores
 from middleware.error_handler import ErrorHandler
@@ -120,7 +128,15 @@ tags_metadata = [
     {
         "name": "Configuracion",
         "description": "Operaciones relacionadas con la Configuración del Sistema",
-    },     
+    },  
+    {
+        "name": "Centralizaciones",
+        "description": "Operaciones relacionadas con las Centralizaciones del Sistema",
+    },
+    {
+        "name": "Centros de Costo",
+        "description": "Operaciones relacionadas con los Centros de Costo del Sistema",
+    },            
     {
         "name": "Periodos",
         "description": "Operaciones relacionadas con los Periodos",
@@ -152,6 +168,18 @@ tags_metadata = [
     {
         "name": "Sociedades",
         "description": "Operaciones relacionadas con las Sociedades del sistema",
+    }, 
+    {
+        "name": "Grupos Centralizaciones",
+        "description": "Operaciones relacionadas con los Grupos de Centralizaciones del sistema",
+    },          
+    {
+        "name": "Bancarios Sociedad",
+        "description": "Operaciones relacionadas con los Datos Bancarios de las Sociedades del sistema",
+    },      
+    {
+        "name": "Mutuales Sociedad",
+        "description": "Operaciones relacionadas con los Datos Mutuales de las Sociedades del sistema",
     },        
     {
         "name": "Sedes",
@@ -193,6 +221,10 @@ tags_metadata = [
         "name": "Tramos Asignacion Familiar",
         "description": "Operaciones relacionadas con los Tramos de Asignacion Familiar",
     },  
+    {
+        "name": "Campos Adicionales",
+        "description": "Operaciones relacionadas con los Campos Adicionales",
+    },     
 ]
 
 #cargamos las variables de entorno
@@ -222,6 +254,8 @@ app.include_router(user_contact_router)
 app.include_router(user_ubicacion_router)
 app.include_router(files_user_router)
 app.include_router(pic_user_router)
+app.include_router(cv_user_router)
+app.include_router(contrato_user_router)
 app.include_router(bancarios_user_router)
 app.include_router(datos_laborales_router)
 app.include_router(datos_pago_router)
@@ -230,6 +264,9 @@ app.include_router(usuarios_afp_router)
 app.include_router(usuarios_prevision_salud_router)
 app.include_router(categorias_configuracion_router)
 app.include_router(configuracion_router)
+app.include_router(centralizaciones_router)
+app.include_router(grupos_centralizaciones_router)
+app.include_router(centros_costos_router)
 app.include_router(periodos_router)
 app.include_router(afp_router)
 app.include_router(bancos_router)
@@ -237,6 +274,8 @@ app.include_router(basic_parameter_router)
 app.include_router(eventos_router)
 app.include_router(nomina_router)
 app.include_router(sociedades_router)
+app.include_router(bancarios_sociedad_router)
+app.include_router(mutuales_sociedad_router)
 app.include_router(sedes_router)
 app.include_router(departamentos_router)
 app.include_router(grupos_empleados_router)
@@ -251,6 +290,7 @@ app.include_router(tipos_prestamos_router)
 app.include_router(cajas_compensacion_router)
 app.include_router(tramos_impuesto_unico_router)
 app.include_router(tramos_asignacion_familiar_router)
+app.include_router(campos_adicionales_router)
 
 
 

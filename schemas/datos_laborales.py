@@ -23,6 +23,9 @@ class DatosLaborales(BaseModel):
     salario_base : float 
     nivel_estudio_id : int
     unidad_sueldo : int = Field (ge=1, le=2)
+    hora_ingreso : time
+    hora_egreso : time   
+    jefatura : int= Field (ge=0, le=1)
 
     model_config = {
         "json_schema_extra": {
@@ -43,7 +46,10 @@ class DatosLaborales(BaseModel):
                     "dias_descanso":"1",
                     "salario_base": 4500.00,
                     "nivel_estudio_id":1,
-                    "unidad_sueldo":"1"
+                    "unidad_sueldo":"1",
+                    "hora_ingreso" : "08:00",
+                    "hora_egreso" : "18:00",    
+                    "jefatura":0                 
                 }
             ]
         }

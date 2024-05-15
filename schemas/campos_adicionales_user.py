@@ -1,6 +1,6 @@
 '''
-Esquema de datos que define a la tabla Sedes
-Created 2024-01
+Esquema de datos que define a la tabla Campos adicionales del usuario
+Created 2024-04
 '''
 from pydantic import BaseModel, Field
 

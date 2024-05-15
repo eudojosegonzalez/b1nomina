@@ -1,5 +1,5 @@
 '''
-Esquema de datos que define a la tabla Sociedades
+Esquema de datos que define a la tabla Grupos de Empleados
 Created 2024-01
 '''
 from pydantic import BaseModel, Field

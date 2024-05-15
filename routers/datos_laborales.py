@@ -763,10 +763,11 @@ def update_datos_laborales(datosLaborales:DatosLaboralesSchema, user_updater: in
     result = DatosLaboralesController(db).update_datos_laborales(datosLaborales, user_updater, id) 
     if (result['result']=="1"):
         data=result['data']
-        return JSONResponse(status_code=200,content={"message":"Dato laboral actualizado","sede":jsonable_encoder(data)})    
+        return JSONResponse(status_code=201,content={"message":"Dato laboral actualizado","sede":jsonable_encoder(data)})    
     elif (result['result']=="-1"):
         return JSONResponse(status_code=404,content={"message":"Dato Laboral no encontrado"}) 
     else:
-        return JSONResponse(status_code=520,content={"message":"Ocurrió un error que no pudo ser controlado"})        
+        cadenaError=result['cadenaError']
+        return JSONResponse(status_code=520,content={"message":f"Ocurrió un error que no pudo ser controlado {cadenaError}"})        
 
 

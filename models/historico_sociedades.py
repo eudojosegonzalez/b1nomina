@@ -15,7 +15,12 @@ class HistoricoSociedad(Base):
 	`region_id`  bigint	not null , -- referencua a Regiones	 Listo
 	`comuna_id`  bigint	not null , -- referencua a Comunas Listo
 	`ciudad` varchar(250) not null,   
-	`icono` varchar(250) null,    
+	`icono` varchar(250) null, 
+    `email` varchar(250) DEFAULT NULL,
+    `responsable` varchar(150) DEFAULT NULL,
+    `rut_responsable` varchar(100) DEFAULT NULL,
+    `email_responsable` varchar(150) DEFAULT NULL,
+    `telefono_responsable` varchar(20) DEFAULT NULL,   
 	`created` datetime NOT NULL comment 'fecha en que fue creado el registro',    
 	`updated`  datetime NOT NULL  comment 'fecha en que fue actualizado el registro',   
     `creator_user` BIGINT NOT NULL  comment 'usuario que creó el parametro',     
@@ -26,7 +31,7 @@ class HistoricoSociedad(Base):
     constraint `FK_Comunas_Empresa` foreign key (`comuna_id`) references `Comunas` (`id`) 
     on  update cascade on delete restrict
     '''
-    __tablename__="HisotiricoSociedad"
+    __tablename__="HistoricoSociedad"
     id = Column(BIGINT, primary_key=True, autoincrement=True, nullable=False)
     sociedad_id = Column(BIGINT, nullable=False)
     rut = Column(VARCHAR(100), nullable=False)
@@ -36,6 +41,11 @@ class HistoricoSociedad(Base):
     comuna_id = Column (BIGINT, nullable=False)
     ciudad = Column(VARCHAR(250), nullable=False)
     icono = Column(VARCHAR(250), nullable=True)
+    email = Column(VARCHAR(250), nullable=True)
+    responsable = Column(VARCHAR(150), nullable=True)
+    rut_responsable = Column(VARCHAR(100), nullable=True)  
+    email_responsable = Column(VARCHAR(250), nullable=True)      
+    telefono_responsable = Column(VARCHAR(20), nullable=True)    
     created = Column (DateTime, nullable=False) #datetime NOT NULL,    
     updated = Column (DateTime, nullable=False)  #datetime NOT NULL,
     creator_user= Column(BIGINT, nullable=False) #user BIGINT NOT NULL,     

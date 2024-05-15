@@ -7,7 +7,6 @@ from pydantic import BaseModel, Field
 
 #clase que representa a  alos datos bancarios del usuario en el sistema
 class BancarioUser(BaseModel):
-    id: int = Field (ge=1,lt=20000)
     user_id: int = Field (ge=1,lt=20000)
     banco_id : int = Field(gr=1, lt=1000)
     numero_cuenta : str = Field (min_length=3, max_length=100)
@@ -21,7 +20,6 @@ class BancarioUser(BaseModel):
         "json_schema_extra": {
             "examples": [
                 {
-                    "id":1,
                     "user_id": 1,
                     "banco_id": 1,
                     "numero_cuenta": "18800023158",

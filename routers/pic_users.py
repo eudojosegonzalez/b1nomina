@@ -1,5 +1,5 @@
 '''
-Rutas de Archivos de usuario
+Rutas de Fotos de usuario
 Created: 2023-12
 '''
 import os
@@ -147,6 +147,119 @@ async def pic_upload_user(creatorUserId : int = Query (ge=1, le=os.getenv("MAX_I
         return JSONResponse (status_code=523,content={"message":"El usuario ya posee una foto","picUser":picUser})          
     else:
         return JSONResponse (status_code=520,content={"message":"Ocurrió un error que no pudo ser controlado","estado":result})
+    
+
+
+
+# Funcion para subir CV del profile de un usuario
+@pic_user_router.post ('/user/{id}/edit_pic_user',
+tags=['Fotos de Usuarios'],
+#dependencies=[Depends(JWTBearer())], 
+responses=
+    { 
+        201: {
+            "description": "Se subió una foto de usuario al sistema",
+            "content": { 
+                "application/json":{
+                    "example":
+                        {
+                            "message":"Se subió un CV de usuario al sistema",
+                            "newUserId":"1"
+                        }
+                    } 
+                }       
+            },
+        403: {
+            "description": "Forbiden",
+            "content": { 
+                "application/json":{ 
+                    "example":
+                        {
+                            "message":"Not authenticated"
+                        }
+                    } 
+                }       
+            }, 
+        500: {
+            "description": "Su session ha expirado",
+            "content": { 
+                "application/json":
+                    { "example":
+                        {
+                            "message":"Su session ha expirado",
+                            "estado":"Signature has expired"
+                        }
+                    } 
+                }       
+            },                         
+        520: {
+            "description": "Ocurrió un error que no pudo ser controlado",
+            "content": { 
+                "application/json":
+                    { "example":
+                        {
+                            "message":"Ocurrió un error que no pudo ser controlado",
+                            "estado":"System Error"
+                        }
+                    } 
+                }       
+            },  
+        521: {
+            "description": "Tipo de archivo no permitido",
+            "content": { 
+                "application/json":
+                    { "example":
+                        {
+                            "message":"Tipo de archivo no permitido",
+                            "estado":"System Error"
+                        }
+                    } 
+                }       
+            },                                  
+        522: {
+            "description": "El archivo es demasiado grande",
+            "content": { 
+                "application/json":
+                    { "example":
+                        {
+                            "message":"El archivo es demasiado grande",
+                            "estado":"System Error"
+                        }
+                    } 
+                }       
+            },
+        523: {
+            "description": "El usuario no posee una Foto",
+            "content": { 
+                "application/json":
+                    { "example":
+                        {
+                            "message":"El usuario ya posee una CV",
+                            "estado":"System Error"
+                        }
+                    } 
+                }       
+            },
+    })
+async def pic_edit_user(creatorUserId : int = Query (ge=1, le=os.getenv("MAX_ID_USERS")) ,id : int = Path (ge=1, le=os.getenv("MAX_ID_USERS")),File : UploadFile=File())->dict:
+    db = Session()
+    result=PicUserController(db).edit_pic_user(creatorUserId,id,File)
+    # evaluamos el resultado
+    estado=result['result']
+
+    if (estado=="1") :
+        # se inserto el registro sin problemas
+        cvUser=result["cvUser"]
+        return JSONResponse (status_code=201,content={"message":"Se subió una foto de usuario al sistema","cvUser":jsonable_encoder(cvUser)})     
+    elif  (estado=="-1"):
+        return JSONResponse (status_code=523,content={"message":"El usuario no posee una foto"})    
+    elif  (estado=="-5"):
+        return JSONResponse (status_code=522,content={"message":"El archivo es demasiado grande","estado":result})   
+    elif  (estado=="-4"):
+        return JSONResponse (status_code=521,content={"message":"Tipo de archivo no permitido","estado":result})              
+    else:
+        return JSONResponse (status_code=520,content={"message":"Ocurrió un error que no pudo ser controlado","estado":result})    
+
 
 
 # Funcion para consultar los datos de un archivo de un usuario

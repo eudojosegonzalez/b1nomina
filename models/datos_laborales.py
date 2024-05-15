@@ -62,6 +62,9 @@ class DatosLaborales(Base):
     dias_descanso=Column(VARCHAR(50), nullable=False)
     nivel_estudio_id =  Column (BIGINT, ForeignKey("NivelEstudio.id", ondelete="RESTRICT", onupdate="CASCADE"),nullable=False)
     unidad_sueldo=Column(VARCHAR(5), nullable=False)
+    hora_ingreso =Column(DateTime, nullable=True)
+    hora_egreso =Column(DateTime, nullable=True)
+    jefatura=Column(INTEGER, nullable=False)
     created = Column (DateTime, nullable=False) #datetime NOT NULL,    
     updated = Column (DateTime, nullable=False)  #datetime NOT NULL,
     creator_user= Column(BIGINT, nullable=False) #user BIGINT NOT NULL,     

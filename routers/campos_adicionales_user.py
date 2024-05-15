@@ -1,5 +1,5 @@
 '''
-Rutas de sedes
+Rutas de Campos Adicioanles
 2024-01
 '''
 import os
@@ -45,12 +45,12 @@ dependencies=[Depends(JWTBearer())],
 responses=
     { 
         201: {
-            "description": "Se creo una Sede en el sistema",
+            "description": "Se creo un Campo Adicional en el sistema",
             "content": { 
                 "application/json":{
                     "example":
                         {
-                            "message":"Se creo una Sede en el sistema",
+                            "message":"Se creo un Campo Adicional en el sistema",
                             "newUserId":"1"
                         }
                     } 

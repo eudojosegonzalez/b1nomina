@@ -1,11 +1,11 @@
 '''
-Modelo que define a la tabla de Datos de los Bancos del Sistema
+Modelo que define a la tabla de Datos de Grupos de Empleados
 Created 2023-12
 '''
 from config.database import Base
-from sqlalchemy import Column,  VARCHAR, BIGINT, DateTime, BOOLEAN,ForeignKey,TEXT, INTEGER
+from sqlalchemy import Column,  VARCHAR, BIGINT, DateTime, ForeignKey,INTEGER
 
-# Definicion de la tabla de Sociedades
+# Definicion de la tabla Grupos de Empleados
 class GruposEmpleado(Base):
     '''
 	`id` bigint NOT NULL AUTO_INCREMENT,

@@ -184,8 +184,8 @@ async def list_bancarios_users(page : int = 1, records : int = 20)->dict:
 
 
 # ruta para consultar los datos Bancarios de un usuario
-@bancarios_user_router.get ('/bancarios_user/{id}', 
-tags=["Bancarios Usuarios"],
+@bancarios_user_router.get ('/user/{id}/bancarios', 
+tags=["Usuarios"],
 status_code=200, 
 dependencies=[Depends(JWTBearer())],
 responses=
@@ -254,7 +254,7 @@ def get_bancarios_user(id: int = Path (ge=1,le=os.getenv("MAX_ID_USERS"))):
 
 
 # ruta para consultar el historial de los datos  Bancarios de un usuario
-@bancarios_user_router.get ('/bancarios_user/{id}/list_historicos', 
+@bancarios_user_router.get ('/user/{id}/list_historicos_bancarios', 
 tags=["Bancarios Usuarios"],
 status_code=200, 
 dependencies=[Depends(JWTBearer())],
@@ -323,7 +323,7 @@ async  def get_historico_bancarios_user(id : int = Path (ge=1,le=os.getenv("MAX_
 
 
 # ruta para actualizar los datos Bancarios de un Usuario
-@bancarios_user_router.put ('/bancarios_user/{id}/update', 
+@bancarios_user_router.put ('/user/{id}/update_bancarios', 
 tags=["Bancarios Usuarios"],
 status_code=200, 
 dependencies=[Depends(JWTBearer())],
@@ -371,7 +371,7 @@ def update_bancarios_user(bancarioUser:BancariosUserSchema, user_updater: int = 
     # buscamos el registro
     result = bancariosUserController(db).update_bancario_user(user_updater, bancarioUser) 
     if (result['result']=="1"):
-        return JSONResponse(status_code=200,content={"message":"Registro actualizado"})    
+        return JSONResponse(status_code=201,content={"message":"Registro actualizado"})    
     elif (result['result']=="-2"):
         return JSONResponse(status_code=404,content={"message":f"Registro no encontrado {result['estado']}"}) 
     else:

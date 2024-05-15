@@ -89,8 +89,8 @@ class UsuariosAFCController():
             paso=2
             #creamos la instancia la nuevo registro del historico
             newHistoricoUsuariosAFC= HistoricoUsuariosAFCModel(
+                usuarios_afc_id=usuarioAFC.id,
                 user_id=usuarioAFC.user_id,     
-
                 estado=usuarioAFC.estado,
                 antiguedad=usuarioAFC.antiguedad,
                 vejez=usuarioAFC.vejez,

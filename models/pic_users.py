@@ -31,4 +31,16 @@ class PicUsuarios(Base):
  
 
 
+    #metodp para convertir en diccionario
+    def to_dict(self):
+        result = {
+            "id":self.id,
+            "user_id": self.user_id,
+            "url":self.url,
+            "created":self.created,
+            "updated":self.updated,
+            "creator_user":self.creator_user,
+            "updater_user":self.updater_user
+        }
+        return (result)    
 

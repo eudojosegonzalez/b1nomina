@@ -5,7 +5,7 @@ Created 2024-01
 from config.database import Base
 from sqlalchemy import Column, VARCHAR, BIGINT, DateTime, ForeignKey, BOOLEAN, Boolean
 
-# Definicion de la tabla de Contacto de usuarios
+# Definicion de la tabla de Datos Bancarios de usuarios
 class BancariosUser(Base):
     '''
     `id` bigint(20) NOT NULL AUTO_INCREMENT,
